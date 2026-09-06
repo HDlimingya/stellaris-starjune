@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="FXoRo1bSAiO1sj8uVe9Jxb">
+<head data-page-node-id="FGHozPcaV4MDog37I3zqeE">
+<meta charset="UTF-8" data-page-node-id="RODOMfTAdfA8DXWjOWO5pK" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="dSkN2M2RSd8KmE7oaIiPJm" />
+<title>STELLARIS // 代号：星郡 — Minecraft 星系生存服务器</title>
+<meta name="description" content="代号：星郡（STELLARIS）— 方块美学下的高级工业硬科幻。经营你的生态舱，为方舟主舰提供生存资源；穿越空间裂隙寻找异星科技，与其他开拓者共同重建文明。" data-page-node-id="B8XFBVDXer6zwfMSAhFcDj" />
+<link rel="icon" type="image/png" href="img/favicon.png" data-page-node-id="nwkl5CuAnIefDB1sfyh3wk" />
+
+<!-- Web 字体 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" data-page-node-id="7CzWALt3rpZpJmSkDb2be1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-page-node-id="QSL6TmRZ19y34zvvon0nqa">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" data-page-node-id="7CzKFEszmQRxcZIKv87ze1">
+
+<style>
+/* =========================================================
+   STELLARIS // 代号：星郡 — 单文件项目展示页
+   遵循 stellaris星郡视觉效果与品牌规范 v2 色板与气质
+   - 舰体底色: #171C22 / #2D3740 / #53636B
+   - 冷灰白: #DCE7E8 / 合金灰 #A9BBC3
+   - 青蓝(秩序): #62D9FF
+   - 绿(生命): #70D98A / #36BFA5
+   - 紫(裂隙): #9A6BFF / #292450
+   - 金(遗物): #D8B45B / #98644B
+   - 橙(注意): #FFAA45  红(危险): #FF4B55
+   ========================================================= */
+
+:root {
+  --c-void: #0B0E12;
+  --c-hull: #171C22;
+  --c-gun: #2D3740;
+  --c-grey-blue: #53636B;
+  --c-cool-white: #DCE7E8;
+  --c-alloy: #A9BBC3;
+
+  --c-stellaris: #62D9FF;        /* 青蓝 - 秩序 */
+  --c-habitat: #70D98A;          /* 绿 - 生命 */
+  --c-habitat-deep: #36BFA5;
+  --c-rift: #9A6BFF;             /* 紫 - 未知 */
+  --c-rift-deep: #292450;
+  --c-relic: #D8B45B;            /* 金 - 遗物 */
+  --c-relic-deep: #98644B;
+  --c-warn: #FFAA45;             /* 橙 - 注意 */
+  --c-danger: #FF4B55;           /* 红 - 危险 */
+
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-cn: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  --grid-line: rgba(98, 217, 255, 0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--c-void);
+  color: var(--c-cool-white);
+  font-family: var(--font-cn);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* 背景栅格 / 扫描线 — 极淡，强化工程秩序感 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  opacity: 0.6;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* =========================================================
+   顶部 HUD — 舰船系统式导航
+   ========================================================= */
+.hud-top {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(11, 14, 18, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(169, 187, 195, 0.08);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--c-alloy);
+}
+.hud-top-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 10px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.hud-status {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.hud-status .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--c-stellaris);
+  margin-right: 6px;
+  box-shadow: 0 0 8px var(--c-stellaris);
+  animation: pulse 2s ease-in-out infinite;
+}
+.hud-status .dot.warn { background: var(--c-warn); box-shadow: 0 0 8px var(--c-warn); }
+.hud-status .dot.relic { background: var(--c-relic); box-shadow: 0 0 6px var(--c-relic); }
+@keyframes pulse { 0%,100%{ opacity: 1;} 50%{ opacity: 0.4;} }
+
+nav.hud-nav {
+  display: flex;
+  gap: 28px;
+  text-transform: uppercase;
+}
+nav.hud-nav a {
+  position: relative;
+  padding: 4px 0;
+  transition: color .2s;
+}
+nav.hud-nav a:hover { color: var(--c-stellaris); }
+nav.hud-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 0; height: 1px;
+  background: var(--c-stellaris);
+  transition: width .25s ease;
+}
+nav.hud-nav a:hover::after { width: 100%; }
+
+/* =========================================================
+   HERO
+   ========================================================= */
+section { position: relative; z-index: 1; }
+
+.hero {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 0;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: url('img/00-hero-mainvisual.png') center/cover no-repeat;
+  filter: saturate(0.92) contrast(1.05);
+}
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, var(--c-void) 0%, rgba(11,14,18,0.6) 35%, rgba(11,14,18,0.25) 65%, rgba(11,14,18,0.4) 100%),
+    radial-gradient(ellipse at 70% 30%, rgba(154,107,255,0.10), transparent 60%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 28px 88px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--c-stellaris);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 36px; height: 1px;
+  background: var(--c-stellaris);
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(56px, 9vw, 144px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: var(--c-cool-white);
+  text-shadow: 0 4px 32px rgba(11,14,18,0.6);
+  max-width: 12ch;
+}
+.hero h1 .cn {
+  display: block;
+  font-family: var(--font-cn);
+  font-weight: 900;
+  font-size: 0.4em;
+  letter-spacing: 0.12em;
+  color: var(--c-alloy);
+  margin-top: 14px;
+}
+
+.hero-tagline {
+  font-family: var(--font-cn);
+  font-weight: 300;
+  font-size: clamp(18px, 1.8vw, 22px);
+  line-height: 1.7;
+  color: var(--c-alloy);
+  max-width: 56ch;
+  margin-top: 8px;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 32px;
+  margin-top: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  flex-wrap: wrap;
+}
+.hero-meta strong {
+  color: var(--c-stellaris);
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+/* 右上角扫描坐标 — 工业硬科幻味 */
+.hero-corner {
+  position: absolute;
+  top: 50%;
+  right: 32px;
+  transform: translateY(-50%);
+  z-index: 3;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--c-grey-blue);
+  text-align: right;
+  line-height: 2;
+  border-right: 1px solid var(--c-stellaris);
+  padding-right: 12px;
+}
+.hero-corner span { color: var(--c-cool-white); display: block; }
+
+/* =========================================================
+   通用 Section / 容器
+   ========================================================= */
+.container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+.section {
+  padding: 120px 0;
+  position: relative;
+}
+.section + .section { border-top: 1px solid rgba(169, 187, 195, 0.06); }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--c-stellaris);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 28px; height: 1px;
+  background: var(--c-stellaris);
+}
+.eyebrow.habitat { color: var(--c-habitat); }
+.eyebrow.habitat::before { background: var(--c-habitat); }
+.eyebrow.rift { color: var(--c-rift); }
+.eyebrow.rift::before { background: var(--c-rift); }
+.eyebrow.relic { color: var(--c-relic); }
+.eyebrow.relic::before { background: var(--c-relic); }
+
+h2.section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--c-cool-white);
+  max-width: 18ch;
+  margin-bottom: 24px;
+}
+h2.section-title .cn {
+  display: block;
+  font-family: var(--font-cn);
+  font-weight: 700;
+  font-size: 0.45em;
+  letter-spacing: 0.16em;
+  color: var(--c-alloy);
+  margin-top: 16px;
+}
+
+.section-intro {
+  font-family: var(--font-cn);
+  font-size: clamp(15px, 1.4vw, 17px);
+  line-height: 1.85;
+  color: var(--c-alloy);
+  max-width: 64ch;
+  margin-bottom: 64px;
+}
+
+/* =========================================================
+   Manifesto — 一句话世界观大字页
+   ========================================================= */
+.manifesto {
+  padding: 140px 0;
+  text-align: left;
+  border-top: 1px solid rgba(169, 187, 195, 0.06);
+  border-bottom: 1px solid rgba(169, 187, 195, 0.06);
+  background: linear-gradient(180deg, transparent, rgba(23, 28, 34, 0.5), transparent);
+}
+.manifesto-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+.manifesto-cn {
+  font-family: var(--font-cn);
+  font-weight: 300;
+  font-size: clamp(28px, 3.6vw, 44px);
+  line-height: 1.55;
+  color: var(--c-cool-white);
+  letter-spacing: 0.04em;
+  max-width: 30ch;
+}
+.manifesto-en {
+  margin-top: 48px;
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 1.1vw, 15px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  max-width: 56ch;
+  line-height: 2;
+}
+.manifesto-meta {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  border-top: 1px solid rgba(169, 187, 195, 0.12);
+  padding-top: 32px;
+}
+.manifesto-meta-item .k {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  margin-bottom: 8px;
+}
+.manifesto-meta-item .v {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--c-cool-white);
+  letter-spacing: -0.01em;
+}
+
+/* =========================================================
+   三大空间循环图 — 中央视觉焦点
+   ========================================================= */
+.cycle-section { padding: 120px 0 80px; }
+.cycle-wrap {
+  position: relative;
+  margin-top: 64px;
+  padding: 56px 0 32px;
+  border-top: 1px solid rgba(98, 217, 255, 0.18);
+  border-bottom: 1px solid rgba(98, 217, 255, 0.18);
+}
+.cycle-image {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  background: url('img/06-three-worlds-cycle.png') center/contain no-repeat;
+}
+.cycle-caption {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+.cycle-cap-item {
+  padding-top: 16px;
+  border-top: 1px solid rgba(169, 187, 195, 0.12);
+}
+.cycle-cap-item .tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.cycle-cap-item.habitat .tag { color: var(--c-habitat); }
+.cycle-cap-item.stellaris .tag { color: var(--c-stellaris); }
+.cycle-cap-item.rift .tag { color: var(--c-rift); }
+.cycle-cap-item .name {
+  font-family: var(--font-cn);
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--c-cool-white);
+  letter-spacing: 0.08em;
+}
+
+/* =========================================================
+   三大空间 — 不对称三联叙事
+   ========================================================= */
+.spaces {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 32px;
+  margin-top: 64px;
+}
+.space-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(169, 187, 195, 0.10);
+  background: var(--c-hull);
+  transition: border-color .3s, transform .3s;
+  cursor: default;
+}
+.space-card:hover {
+  border-color: rgba(98, 217, 255, 0.4);
+  transform: translateY(-4px);
+}
+.space-card .cover {
+  aspect-ratio: 4 / 3;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  filter: saturate(0.9);
+}
+.space-card .cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, var(--c-hull) 100%);
+}
+.space-card .body {
+  padding: 28px 28px 36px;
+}
+.space-card .sys-id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.space-card .sys-id .label { color: var(--c-grey-blue); }
+.space-card .sys-id .tag {
+  padding: 2px 10px;
+  border: 1px solid currentColor;
+}
+.space-card.habitat .sys-id .tag { color: var(--c-habitat); }
+.space-card.stellaris .sys-id .tag { color: var(--c-stellaris); }
+.space-card.rift .sys-id .tag { color: var(--c-rift); }
+.space-card h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  color: var(--c-cool-white);
+  margin-bottom: 8px;
+}
+.space-card .cn-name {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  color: var(--c-alloy);
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+.space-card p {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--c-alloy);
+}
+.space-card .stats {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(169, 187, 195, 0.10);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+.space-card .stats div span {
+  display: block;
+  color: var(--c-grey-blue);
+  text-transform: uppercase;
+  font-size: 10px;
+  margin-bottom: 4px;
+  letter-spacing: 0.18em;
+}
+.space-card .stats div strong {
+  color: var(--c-cool-white);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+/* =========================================================
+   资源循环链路 — 数据 / 流程
+   ========================================================= */
+.flow {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: start;
+}
+.flow-intro h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: -0.01em;
+  color: var(--c-cool-white);
+  margin-bottom: 24px;
+}
+.flow-intro p {
+  font-family: var(--font-cn);
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--c-alloy);
+  max-width: 50ch;
+  margin-bottom: 24px;
+}
+.flow-list {
+  list-style: none;
+  counter-reset: flow;
+}
+.flow-list li {
+  counter-increment: flow;
+  padding: 22px 0;
+  border-top: 1px solid rgba(169, 187, 195, 0.10);
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+.flow-list li:last-child { border-bottom: 1px solid rgba(169, 187, 195, 0.10); }
+.flow-list li::before {
+  content: "0" counter(flow);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--c-stellaris);
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+.flow-list li .lbl {
+  font-family: var(--font-cn);
+  font-size: 15px;
+  color: var(--c-cool-white);
+  font-weight: 500;
+}
+.flow-list li .lbl small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  margin-top: 4px;
+  font-weight: 400;
+}
+.flow-list li .arrow {
+  font-family: var(--font-mono);
+  color: var(--c-stellaris);
+  font-size: 18px;
+}
+
+/* =========================================================
+   角色循环 — 三段时间轴
+   ========================================================= */
+.cycles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 64px;
+}
+.cycle-card {
+  border: 1px solid rgba(169, 187, 195, 0.10);
+  padding: 36px 32px;
+  background: var(--c-hull);
+  position: relative;
+}
+.cycle-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 32px; height: 1px;
+  background: var(--c-stellaris);
+}
+.cycle-card.short::before { background: var(--c-habitat); }
+.cycle-card.long::before { background: var(--c-rift); }
+.cycle-card .head {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  margin-bottom: 16px;
+}
+.cycle-card .time {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: -0.01em;
+  color: var(--c-cool-white);
+  margin-bottom: 4px;
+}
+.cycle-card .time-unit {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  margin-bottom: 24px;
+}
+.cycle-card ul {
+  list-style: none;
+  font-family: var(--font-cn);
+  font-size: 14px;
+  color: var(--c-alloy);
+  line-height: 1.85;
+}
+.cycle-card ul li {
+  padding: 8px 0 8px 18px;
+  position: relative;
+}
+.cycle-card ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--c-grey-blue);
+}
+
+/* =========================================================
+   生态舱模块 — 不对称 1+3 卡墙（反三等卡）
+   ========================================================= */
+.modules {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+}
+.module-hero {
+  background: url('img/03-habitat.png') center/cover no-repeat;
+  border: 1px solid rgba(112, 217, 138, 0.25);
+  position: relative;
+  padding: 36px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.module-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(11,14,18,0.85) 100%);
+}
+.module-hero > * { position: relative; z-index: 1; }
+.module-hero .tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-habitat);
+  margin-bottom: 14px;
+}
+.module-hero h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--c-cool-white);
+  margin-bottom: 12px;
+}
+.module-hero p {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--c-alloy);
+  max-width: 40ch;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.module-item {
+  background: var(--c-hull);
+  border: 1px solid rgba(169, 187, 195, 0.10);
+  padding: 26px 24px;
+  position: relative;
+  transition: border-color .3s;
+}
+.module-item:hover { border-color: rgba(112, 217, 138, 0.4); }
+.module-item .id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--c-grey-blue);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.module-item h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--c-cool-white);
+  margin-bottom: 6px;
+}
+.module-item .cn-sub {
+  font-family: var(--font-cn);
+  font-size: 13px;
+  color: var(--c-habitat);
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+.module-item p {
+  font-family: var(--font-cn);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--c-alloy);
+}
+
+/* =========================================================
+   物质重构器 Mk.I/II/III — 演进
+   ========================================================= */
+.refactor {
+  margin-top: 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid rgba(169, 187, 195, 0.10);
+  border-bottom: 1px solid rgba(169, 187, 195, 0.10);
+}
+.mk {
+  padding: 36px 28px;
+  border-right: 1px solid rgba(169, 187, 195, 0.10);
+  position: relative;
+}
+.mk:last-child { border-right: 0; }
+.mk .mk-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+}
+.mk .mk-name {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--c-cool-white);
+}
+.mk .mk-sub {
+  margin-top: 4px;
+  font-family: var(--font-cn);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--c-habitat);
+}
+.mk ul {
+  margin-top: 24px;
+  list-style: none;
+  font-family: var(--font-cn);
+  font-size: 13px;
+  color: var(--c-alloy);
+  line-height: 1.9;
+}
+.mk ul li {
+  padding-left: 16px;
+  position: relative;
+}
+.mk ul li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  color: var(--c-habitat);
+  font-family: var(--font-mono);
+}
+.mk .mk-unlock {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(169, 187, 195, 0.10);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--c-grey-blue);
+  text-transform: uppercase;
+}
+.mk .mk-unlock strong { color: var(--c-cool-white); font-weight: 500; }
+
+/* =========================================================
+   STELLARIS 五大区域 — 序号小标 (节制地使用)
+   ========================================================= */
+.areas {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 24px;
+}
+.area-cover {
+  grid-column: 1 / 2;
+  grid-row: 1 / 4;
+  background: url('img/01-stellaris-ship.png') center/cover no-repeat;
+  border: 1px solid rgba(98, 217, 255, 0.20);
+  min-height: 520px;
+  position: relative;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.area-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(11,14,18,0.85) 100%);
+}
+.area-cover > * { position: relative; z-index: 1; }
+.area-cover .tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-stellaris);
+  margin-bottom: 14px;
+}
+.area-cover h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+  color: var(--c-cool-white);
+  margin-bottom: 12px;
+}
+.area-cover p {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--c-alloy);
+  max-width: 36ch;
+}
+
+.area-item {
+  background: var(--c-hull);
+  border: 1px solid rgba(169, 187, 195, 0.10);
+  padding: 24px 26px;
+  transition: border-color .3s;
+}
+.area-item:hover { border-color: rgba(98, 217, 255, 0.4); }
+.area-item .no {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--c-stellaris);
+  margin-bottom: 12px;
+}
+.area-item h4 {
+  font-family: var(--font-cn);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--c-cool-white);
+  margin-bottom: 4px;
+}
+.area-item .en {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  margin-bottom: 12px;
+}
+.area-item p {
+  font-family: var(--font-cn);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--c-alloy);
+}
+
+/* =========================================================
+   裂隙副本 — 大图 + 双副本
+   ========================================================= */
+.rift-featured {
+  margin-top: 64px;
+  position: relative;
+  background: url('img/05-rift-observatory.png') center/cover no-repeat;
+  min-height: 520px;
+  border: 1px solid rgba(154, 107, 255, 0.20);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.rift-featured::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(11,14,18,0.85) 100%);
+}
+.rift-featured > * { position: relative; z-index: 1; max-width: 60ch; }
+.rift-featured .tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-rift);
+  margin-bottom: 16px;
+}
+.rift-featured h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 40px;
+  letter-spacing: -0.01em;
+  color: var(--c-cool-white);
+  margin-bottom: 12px;
+}
+.rift-featured p {
+  font-family: var(--font-cn);
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--c-alloy);
+}
+
+.rift-grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+.rift-card {
+  border: 1px solid rgba(169, 187, 195, 0.10);
+  padding: 32px 28px;
+  background: var(--c-hull);
+}
+.rift-card.locked { opacity: 0.55; }
+.rift-card .no {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--c-rift);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.rift-card.locked .no { color: var(--c-grey-blue); }
+.rift-card h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--c-cool-white);
+  margin-bottom: 4px;
+}
+.rift-card .cn {
+  font-family: var(--font-cn);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--c-rift);
+  margin-bottom: 16px;
+}
+.rift-card.locked .cn { color: var(--c-grey-blue); }
+.rift-card p {
+  font-family: var(--font-cn);
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--c-alloy);
+}
+.rift-card .loot {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(169, 187, 195, 0.10);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--c-grey-blue);
+  text-transform: uppercase;
+}
+.rift-card .loot strong { color: var(--c-cool-white); font-weight: 500; }
+.rift-card.locked .loot strong { color: var(--c-grey-blue); }
+
+/* =========================================================
+   视觉支柱 — 色板 / 视觉承诺
+   ========================================================= */
+.visual-pillars {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+.palette h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--c-cool-white);
+  margin-bottom: 8px;
+}
+.palette p {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  color: var(--c-alloy);
+  line-height: 1.85;
+  margin-bottom: 32px;
+}
+.swatch-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.swatch {
+  aspect-ratio: 1;
+  border: 1px solid rgba(169, 187, 195, 0.12);
+  position: relative;
+}
+.swatch::after {
+  content: attr(data-tag);
+  position: absolute;
+  bottom: -22px; left: 0;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--c-grey-blue);
+}
+.swatch-row.swatch-wide {
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 48px;
+}
+.swatch-row.swatch-wide .swatch::after { bottom: -22px; }
+
+.pillars-list {
+  list-style: none;
+}
+.pillars-list li {
+  padding: 28px 0;
+  border-top: 1px solid rgba(169, 187, 195, 0.10);
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 20px;
+}
+.pillars-list li:last-child { border-bottom: 1px solid rgba(169, 187, 195, 0.10); }
+.pillars-list li .idx {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--c-stellaris);
+  letter-spacing: 0.1em;
+}
+.pillars-list li h4 {
+  font-family: var(--font-cn);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--c-cool-white);
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+.pillars-list li p {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--c-alloy);
+}
+
+/* =========================================================
+   开发路线 — 时间线
+   ========================================================= */
+.timeline {
+  margin-top: 64px;
+  position: relative;
+  border-top: 1px solid rgba(169, 187, 195, 0.10);
+}
+.timeline-item {
+  display: grid;
+  grid-template-columns: 140px 1fr 320px;
+  gap: 48px;
+  padding: 32px 0;
+  border-bottom: 1px solid rgba(169, 187, 195, 0.10);
+  align-items: start;
+}
+.timeline-item .phase {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: var(--c-stellaris);
+  text-transform: uppercase;
+}
+.timeline-item .body h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--c-cool-white);
+  margin-bottom: 8px;
+}
+.timeline-item .body p {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--c-alloy);
+  max-width: 56ch;
+}
+.timeline-item .meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--c-grey-blue);
+  text-transform: uppercase;
+  border-left: 1px solid rgba(98, 217, 255, 0.25);
+  padding-left: 16px;
+}
+.timeline-item .meta strong {
+  display: block;
+  color: var(--c-cool-white);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+/* =========================================================
+   加入 — CTA 封底
+   ========================================================= */
+.join {
+  padding: 140px 0 120px;
+  border-top: 1px solid rgba(169, 187, 195, 0.10);
+  background:
+    linear-gradient(180deg, transparent, rgba(23,28,34,0.6) 50%, transparent),
+    radial-gradient(ellipse at 50% 100%, rgba(98, 217, 255, 0.10), transparent 60%);
+}
+.join-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 28px;
+  text-align: center;
+}
+.join-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--c-stellaris);
+  margin-bottom: 24px;
+}
+.join h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(40px, 6vw, 88px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: var(--c-cool-white);
+  margin-bottom: 24px;
+}
+.join h2 .cn {
+  display: block;
+  font-family: var(--font-cn);
+  font-weight: 300;
+  font-size: 0.4em;
+  color: var(--c-alloy);
+  letter-spacing: 0.16em;
+  margin-top: 18px;
+}
+.join p {
+  font-family: var(--font-cn);
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--c-alloy);
+  max-width: 56ch;
+  margin: 0 auto 48px;
+}
+
+.join-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 36px;
+  border: 1px solid var(--c-stellaris);
+  background: rgba(98, 217, 255, 0.06);
+  color: var(--c-stellaris);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: background .25s, color .25s;
+  cursor: pointer;
+}
+.join-cta:hover {
+  background: var(--c-stellaris);
+  color: var(--c-void);
+}
+.join-cta .arrow {
+  width: 18px; height: 1px;
+  background: currentColor;
+  position: relative;
+}
+.join-cta .arrow::after {
+  content: '';
+  position: absolute;
+  right: 0; top: -3px;
+  width: 7px; height: 7px;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.join-meta {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  border-top: 1px solid rgba(169, 187, 195, 0.12);
+  padding-top: 32px;
+  text-align: left;
+}
+.join-meta-item .k {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  margin-bottom: 8px;
+}
+.join-meta-item .v {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  color: var(--c-cool-white);
+  letter-spacing: 0.04em;
+}
+
+/* =========================================================
+   页脚
+   ========================================================= */
+footer {
+  border-top: 1px solid rgba(169, 187, 195, 0.08);
+  padding: 32px 28px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-grey-blue);
+  position: relative;
+  z-index: 1;
+}
+.footer-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-inner .brand {
+  color: var(--c-cool-white);
+  letter-spacing: 0.2em;
+}
+.footer-inner .brand .accent { color: var(--c-stellaris); }
+
+/* =========================================================
+   响应式
+   ========================================================= */
+@media (max-width: 980px) {
+  .section { padding: 80px 0; }
+  .cycle-caption { grid-template-columns: 1fr; gap: 20px; }
+  .spaces { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: 1fr; gap: 32px; }
+  .cycles { grid-template-columns: 1fr; }
+  .modules { grid-template-columns: 1fr; }
+  .module-grid { grid-template-columns: 1fr; }
+  .refactor { grid-template-columns: 1fr; }
+  .refactor .mk { border-right: 0; border-bottom: 1px solid rgba(169, 187, 195, 0.10); }
+  .refactor .mk:last-child { border-bottom: 0; }
+  .areas { grid-template-columns: 1fr; }
+  .area-cover { grid-column: auto; grid-row: auto; min-height: 360px; }
+  .rift-grid { grid-template-columns: 1fr; }
+  .visual-pillars { grid-template-columns: 1fr; gap: 40px; }
+  .timeline-item { grid-template-columns: 1fr; gap: 16px; }
+  .timeline-item .meta { border-left: 0; padding-left: 0; border-top: 1px solid rgba(98, 217, 255, 0.25); padding-top: 12px; }
+  .join-meta { grid-template-columns: 1fr; }
+  .manifesto-meta { grid-template-columns: repeat(2, 1fr); }
+  nav.hud-nav { display: none; }
+  .hero-corner { display: none; }
+  .hud-top-inner { font-size: 10px; padding: 8px 16px; }
+  .hero h1 { font-size: clamp(44px, 12vw, 72px); }
+}
+@media (max-width: 540px) {
+  .container, .manifesto-inner, .join-inner { padding: 0 18px; }
+  .hero-content { padding: 0 18px 60px; }
+  .module-hero { min-height: 320px; padding: 24px; }
+  .rift-featured { min-height: 380px; padding: 28px; }
+  .swatch-row { grid-template-columns: repeat(3, 1fr); }
+  .swatch-row.swatch-wide { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body data-page-node-id="HIzIkddpoeFYpyEv1XhI4P">
+
+<!-- ============================ HUD TOP ============================ -->
+<div class="hud-top" data-page-node-id="bunoh9ECA5zDinnyvDmtdn">
+  <div class="hud-top-inner" data-page-node-id="ZGDYnCZRnIXMP0BmOHe12K">
+    <div class="hud-status" data-page-node-id="jLprEwiJsbWbEgqUa6IWCT">
+      <span data-page-node-id="lJfOQFAIMei3HOnZXV7suI"><span class="dot" data-page-node-id="LJAmyuJD0EfgUNpzjVGkgo"></span>STELLARIS ONLINE</span>
+      <span class="warn" data-page-node-id="oKyd6N6s2cSfwKQSiPKcwy"><span class="dot warn" data-page-node-id="3rQVSnsUWVgwuID7BoYDNV"></span>POWER 47%</span>
+      <span class="relic" data-page-node-id="HqLW0UfTP96aBFIJ50fDk9"><span class="dot relic" data-page-node-id="gI9y9dPH0XjvphuuU3RB9p"></span>RIFT 01 ACTIVE</span>
+    </div>
+    <nav class="hud-nav" data-page-node-id="FRBv5XdWFng5RujITAhGiq">
+      <a href="#manifesto" data-page-node-id="a8tywSJB3FQfMm1QHpOjPR">世界观</a>
+      <a href="#spaces" data-page-node-id="l9bMdX5SadOfcQs8KU4B2s">三大空间</a>
+      <a href="#habitat" data-page-node-id="CMDhQ3S8m9EC9OH0L0UCNF">生态舱</a>
+      <a href="#stellaris" data-page-node-id="k811E5wHEvDOwUoRu9R1b4">主舰</a>
+      <a href="#rift" data-page-node-id="cR1RM4kV7cc122RpMWLRKp">裂隙</a>
+      <a href="#roadmap" data-page-node-id="xHDIsTE5Kwp0FY8qcR8eAg">开发路线</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ============================ HERO ============================ -->
+<section class="hero" data-page-node-id="qWadJSY9AhAstqXaG2KHl8">
+  <div class="hero-bg" data-page-node-id="sUy0DLXS0voZFiZ8GA9hNC"></div>
+
+  <div class="hero-corner" data-page-node-id="Ki7O3DgEZDwCzDXxZ4dnaT">
+    SECTOR // DRIFT-04
+    <span data-page-node-id="jbiUwX7csTwA4U6L38HDik">COORDS 04·17·29</span>
+    <span data-page-node-id="rznptGs71fHdyED84Y0kgi">FRAME 4 092</span>
+    <span data-page-node-id="cj3qbETLnH4O0jTXBsRNTe">STATUS STABLE</span>
+  </div>
+
+  <div class="hero-content" data-page-node-id="rSEe3A7yLCWNJEzJt3Y5Dy">
+    <div class="hero-eyebrow" data-page-node-id="CjZVsc563vCMhmb98Ez0oo">PROJECT 代号：星郡 / STELLARIS</div>
+    <h1 data-page-node-id="Vew62ki5H53TpapssC2GDn">
+      BUILD A STAR
+      <span class="cn" data-page-node-id="h1cv3DvGMoFHjO7ybidvq2">从一座生态舱开始，重建一片星海。</span>
+    </h1>
+    <p class="hero-tagline" data-page-node-id="IjoPJO2Kn3TjX8eUvHuKAj">
+      一座正在衰败、被反复维修，却仍以严格工程秩序维持文明的移动主舰。<br data-page-node-id="63jfSty7UsZJqIYsPcsXFn">
+      你从冷冻舱醒来，在断层空域经营自己的生态舱，向主舰提交资源，穿过空间裂隙，<br data-page-node-id="AlBC7BIvEjFa58vpB7zFQH">
+      把带回的科技与材料，变成下一座可被点亮的灯。
+    </p>
+    <div class="hero-meta" data-page-node-id="mTsDAc7D46BUsheoe61yyd">
+      <span data-page-node-id="cQDIFGsBrRw6yjixUCYfJ8">题材 <strong data-page-node-id="L1qhnUx1CUjsCpu4ZN9mhz">星系生存 · 文明重建 · 异星探索</strong></span>
+      <span data-page-node-id="U1fnVub1k5rSSYEhZI1C8E">当前阶段 <strong data-page-node-id="wMca43vigbkAM8uGMGLvaL">MVP 验证</strong></span>
+      <span data-page-node-id="tROUsDFwu8ZWLsbS8tboX7">目标 <strong data-page-node-id="XFRcBpbVFxnPD38JkJnTtO">Minecraft 多人服务器</strong></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MANIFESTO ============================ -->
+<section id="manifesto" class="manifesto" data-page-node-id="8PoxEKTAzGGMf3WJ12Yf7v">
+  <div class="manifesto-inner" data-page-node-id="yXE5UnLQKfRYv5pTpfEQpG">
+    <div class="manifesto-cn" data-page-node-id="Ly5p3lcfk4qM9okDdw9XiR">
+      星海航路崩塌后，最后的幸存者乘坐方舟主舰漂泊于破碎星域。<br data-page-node-id="TDe0YOrvYTsEBlGKmYADMA">
+      经营你的生态舱，探索失联星域，<br data-page-node-id="MLIhXJ80OGIBiis0qW4Aqe">
+      将资源与科技带回主舰，在核心熄灭之前，为文明找到下一片家园。
+    </div>
+    <div class="manifesto-en" data-page-node-id="6vSqMXI7deChl1o515KapH">
+      AFTER THE BROKEN-DAY, STAR-SEA TORE. STELLARIS DRIFTS THROUGH THE RUINED SECTOR.<br data-page-node-id="C6aHwHWZGGBYlFniVbCgTj">
+      BUILD YOUR HABITAT. EXPLORE THE LOST DOMAINS. RETURN WITH WHAT KEEPS THE CORE ALIVE.
+    </div>
+    <div class="manifesto-meta" data-page-node-id="xbqILtn031RSwIMtrUbzBE">
+      <div class="manifesto-meta-item" data-page-node-id="0e1qWQBddr2qcNs1et2x3n">
+        <div class="k" data-page-node-id="Oyk5JSlm4CvPX2cpdRXRqG">BREAK / 断航日</div>
+        <div class="v" data-page-node-id="CMDVBcEbkbR5V0b7mlwaY0">星海航路</div>
+      </div>
+      <div class="manifesto-meta-item" data-page-node-id="pslrSg1AgZ60g6BQX98YEx">
+        <div class="k" data-page-node-id="D08HZTdD3MuODImZglDrlU">ARK / 方舟</div>
+        <div class="v" data-page-node-id="h2Jcflcxv32d7XYmBPi8ie">STELLARIS</div>
+      </div>
+      <div class="manifesto-meta-item" data-page-node-id="i8Ry4Y5hRW4V4bSAJOvIPH">
+        <div class="k" data-page-node-id="5iFBHF7NhWB0GgTM8LQ0Xu">PILOT / 身份</div>
+        <div class="v" data-page-node-id="W7mdFjDBeuKt4GNCBN7qbF">开拓者</div>
+      </div>
+      <div class="manifesto-meta-item" data-page-node-id="bRDPRE7JZFYT0o9WDrfz6F">
+        <div class="k" data-page-node-id="93w4gLy50uNqFu8nEhpIM9">CORE / 危机</div>
+        <div class="v" data-page-node-id="dgNOAHJV8B4YK41mZLWtmT">能源衰减</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 三大空间循环图 ============================ -->
+<section class="section cycle-section" data-page-node-id="2A6pnPgOhRV8mWyMSAfgSd">
+  <div class="container" data-page-node-id="5AkYO3dWz1JsSvZEd5PYn3">
+    <div class="eyebrow" data-page-node-id="841OQStnqeByxxqBgHaFxY">CYCLE / 三层世界循环</div>
+    <h2 class="section-title" data-page-node-id="gT61in1YsDUI3Zyya1BtgP">
+      生态舱、主舰、裂隙，是同一个文明的三种器官。
+      <span class="cn" data-page-node-id="EkULjhiOUHDEI43KmrLF20">三者通过资源与能源线路形成循环，缺一不可。</span>
+    </h2>
+    <div class="cycle-wrap" data-page-node-id="7FnETb2mI9jxwiYLYU6LSb">
+      <div class="cycle-image" data-page-node-id="GXFQNLkfgIOG7QiY1Vww2N"></div>
+      <div class="cycle-caption" data-page-node-id="qQoNGAtERgE4wUXqRezZaq">
+        <div class="cycle-cap-item habitat" data-page-node-id="a7oeG4EuOEcI1imbG5M9yI">
+          <span class="tag" data-page-node-id="8DtB2mAUTsclvi5ACu4xHq">// HABITAT</span>
+          <div class="name" data-page-node-id="H0P2vveNPnKtajVY8IQanp">生态舱 · 负责生产与建设</div>
+        </div>
+        <div class="cycle-cap-item stellaris" data-page-node-id="8ECiD8wELv9DpWy4iBX9T7">
+          <span class="tag" data-page-node-id="6WFsL3meFC8rpXY0U3akGT">// STELLARIS</span>
+          <div class="name" data-page-node-id="3d4IKdrmtUWPynIYUQWxVn">主舰 · 负责任务与共同进度</div>
+        </div>
+        <div class="cycle-cap-item rift" data-page-node-id="vC5wDacS5lpHSiRofBo9ik">
+          <span class="tag" data-page-node-id="gWe7rjmlt3j7cLokGA2bx3">// RIFT</span>
+          <div class="name" data-page-node-id="F0cDbBa8R5EykH2cBjQvb9">裂隙 · 负责探索、战斗与稀有资源</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 三大空间 — 三联叙事 ============================ -->
+<section id="spaces" class="section" data-page-node-id="7xqyVFpswdFKJ1cO4ofv5p">
+  <div class="container" data-page-node-id="T3Ang5E9pAS9p2VRySuAgl">
+    <div class="eyebrow" data-page-node-id="YdZEn9JgHguMEYMU7KHhQt">THE THREE DOMAINS / 三大空间</div>
+    <h2 class="section-title" data-page-node-id="FkZWbCDiTeNFzcLw6MI7gk">
+      三个空间承担三种工作。<br data-page-node-id="DMt9udscDUsBtwH4jSGI1g">它们共同推动文明存续。
+      <span class="cn" data-page-node-id="NkENAd6RVQFSV1XF8Zo7Z8">玩家不会"只做一个玩法"。</span>
+    </h2>
+    <div class="spaces" data-page-node-id="q0UZVigxUWI2promBatSQm">
+      <!-- HABITAT -->
+      <div class="space-card habitat" data-page-node-id="mCWCZG5c3faf72UMIxK1FW">
+        <div class="cover" style="background-image: url('img/03-habitat.png');" data-page-node-id="DTHPzVH8wx2tqgGgfTVZr6"></div>
+        <div class="body" data-page-node-id="pFoaPYI8w24JqxG8oNaEee">
+          <div class="sys-id" data-page-node-id="DYTlaYEaJ5AslzrsSiFyY2">
+            <span class="label" data-page-node-id="jXARz4JjamYbp7B1ii8Dsa">SYSTEM 01 // HABITAT</span>
+            <span class="tag" data-page-node-id="bmHRq81hFs9iqWHyDRBZ8G">LIFE</span>
+          </div>
+          <h3 data-page-node-id="eouFtuyi3BKGqSQBAgf7jW">生态舱</h3>
+          <div class="cn-name" data-page-node-id="l0MiCYsUDS8hKN5IMWcxFD">独立生态舱 / Independent Habitat</div>
+          <p data-page-node-id="8cONghj0NSajCjxn0g8BQp">黑暗星域中稀缺而温暖的生命单元。从一台被部署到断层空域的生存机器开始，逐步恢复物质生产、农业循环、能源储备与自动化设施。</p>
+          <div class="stats" data-page-node-id="fpSyYP12kYKZSCBLh8XfGH">
+            <div data-page-node-id="8TFx9VyM1j6zBf1SqbxGUP"><span data-page-node-id="bh9HXQmz9H77lG0ZDprXD8">BASE COLOR</span><strong data-page-node-id="N9VxQBcfcLGvkcCIfGsskv">绿 · #70D98A</strong></div>
+            <div data-page-node-id="6KxOtGBRF3RIU4yI6YtrbG"><span data-page-node-id="N1XivxIrUGONme4PMvjFlS">ROLE</span><strong data-page-node-id="OrTOh8QH6SCd85sTDXz6Uf">生产 · 建设</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STELLARIS -->
+      <div class="space-card stellaris" data-page-node-id="3yrlT2RxAB0OV5FGVyP4I8">
+        <div class="cover" style="background-image: url('img/02-central-hall.png');" data-page-node-id="tbZc425D3IHGW3OjC7Af4Z"></div>
+        <div class="body" data-page-node-id="mbrrH0zeU9pARelEUHBAov">
+          <div class="sys-id" data-page-node-id="Svp2SPtJDA2Mc57Y6MzFPQ">
+            <span class="label" data-page-node-id="R2zCDs6MlTtZ25MQkJz4ry">SYSTEM 02 // STELLARIS</span>
+            <span class="tag" data-page-node-id="BKKKpwENS3MTQcIfPXmbUG">ORDER</span>
+          </div>
+          <h3 data-page-node-id="kinRyTou1BLOdMFbt8a2kT">STELLARIS</h3>
+          <div class="cn-name" data-page-node-id="F1O0Pnwpb90ZCdFvTqf0RO">方舟主舰 / Central Hub</div>
+          <p data-page-node-id="GJfSVTODOKmNHr6p8s6S0J">冰冷、庞大且正在衰减的文明中枢。冷冻苏醒、主线任务、商店、组队与排行榜全部在舰内。文明存续进度由它承载，也由它显示。</p>
+          <div class="stats" data-page-node-id="StwanntifQOmIzdKS4EDbH">
+            <div data-page-node-id="S58Gqs5q5vT6gB108t7127"><span data-page-node-id="0FBHXdplT1LUhMyF2hqk4g">BASE COLOR</span><strong data-page-node-id="zXExZFJysOamAlSBPlrP57">青蓝 · #62D9FF</strong></div>
+            <div data-page-node-id="wkQaKGBOZD2lTgYwX8GCUi"><span data-page-node-id="NJAMjV4kCzapTkFfWKYVAz">ROLE</span><strong data-page-node-id="CaXjkmV7XNklliCiSZR9Se">任务 · 共同进度</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIFT -->
+      <div class="space-card rift" data-page-node-id="niiLsp3BsanixvcWzcbBao">
+        <div class="cover" style="background-image: url('img/04-wasteland.png');" data-page-node-id="K9eIwQn3xnYYZI55Dr1j31"></div>
+        <div class="body" data-page-node-id="tHBCVI1MtWMelX2hmGNmxG">
+          <div class="sys-id" data-page-node-id="rAKTtmdLYoZ3yNkZvIFCbl">
+            <span class="label" data-page-node-id="J3gMXfqXzAYJM2SRDDFuXP">SYSTEM 03 // RIFT</span>
+            <span class="tag" data-page-node-id="iaik1TE5QemhDcHwH3RG9A">UNKNOWN</span>
+          </div>
+          <h3 data-page-node-id="QjZtAvtqigkIqAovfv0MNP">裂隙星域</h3>
+          <div class="cn-name" data-page-node-id="r1TB4wyEc4k4NLxTz84rBL">空间裂隙 / Rift Sector</div>
+          <p data-page-node-id="Eo5Xs0J0HQC5xlEkCClo6x">被工程设备勉强控制的未知异常。副本带来生态舱无法制造的材料——星核部件、异星种子、能源结晶与坐标数据，把它们带回主舰。</p>
+          <div class="stats" data-page-node-id="tSih3JWPz0blXeYF0Opme4">
+            <div data-page-node-id="uwto8ptEMh1GCMZ7BSaAPx"><span data-page-node-id="HTfLpz0ME8zONTi4pVh4Dz">BASE COLOR</span><strong data-page-node-id="qAwf8AZWQAzDLAxonm8sJ6">紫 · #9A6BFF</strong></div>
+            <div data-page-node-id="opMtOBY7aghQAGpkq47HKm"><span data-page-node-id="MYDIqlJothGaI7JnB4knP3">ROLE</span><strong data-page-node-id="odKraprCjCxuhFzeWm0zFP">探索 · 战斗 · 稀有资源</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 资源循环链路 ============================ -->
+<section class="section" data-page-node-id="4t7kSCJh4oZzPerlzg0G1H">
+  <div class="container" data-page-node-id="ecDgpj2uETer0sDkbCehBI">
+    <div class="eyebrow" data-page-node-id="dQbp6sloHMG195xfaRnQtu">CIVILIZATION LOOP / 资源循环链路</div>
+    <h2 class="section-title" data-page-node-id="Dbt6YjXTSn6yw3XJDDxPAB">
+      从一块石头，到一颗点燃核心的星核部件。
+      <span class="cn" data-page-node-id="iF8vgZNFOdfoVDDrS4bCu3">七步走完一次完整的文明回响。</span>
+    </h2>
+
+    <div class="flow" data-page-node-id="jnm2oZ0D6EFs9UBdwgf8jy">
+      <div class="flow-intro" data-page-node-id="BqGyv445Q3ocDFO9l9LCTS">
+        <h3 data-page-node-id="KvVxtLLadsQyhmse3VLvfq">副本不是终点，生产也不是孤立玩法。</h3>
+        <p data-page-node-id="UuEn6EufO1be9zsxZ2UVKC">
+          玩家在生态舱生产的每一种基础资源，都可以转化为 STELLARIS 的修复进度；而主舰每一次跃迁式的状态跃迁，又会反向开放新的裂隙与新的生态舱模块。两者形成的回响，构成整个服务器的核心体验。
+        </p>
+        <p style="color: var(--c-grey-blue); font-size: 13px; font-family: var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase;" data-page-node-id="62Cma3ns6aXK3u3IYu7pqg">
+          // CORE — ENDURING IS THE ONLY WIN CONDITION
+        </p>
+      </div>
+
+      <ol class="flow-list" data-page-node-id="YAFvU5Y5tbFiR20bBt6bms">
+        <li data-page-node-id="zyTICR3R42RHRRD6fzGSyT"><span class="lbl" data-page-node-id="EMVfdJQuEHCE6UDBim9PiB">部署生态舱<small data-page-node-id="lOs4f6Yw5Vjz8s9OLNgSVf">Habitat Deployment</small></span><span class="arrow" data-page-node-id="jXdtVSMDXBAbcqTWveOYua">→</span></li>
+        <li data-page-node-id="8xB3hPExr2UbZqvIL3ReOg"><span class="lbl" data-page-node-id="qrZkZHXKtb8fAh1obsqLvI">生产基础物资并建设家园<small data-page-node-id="x7jIxtKw4JPTBH0RqcrFH7">Production & Construction</small></span><span class="arrow" data-page-node-id="5MuuGMW21hHfiBavH0V3v3">→</span></li>
+        <li data-page-node-id="40phk16BBzELC4QALE7Fwf"><span class="lbl" data-page-node-id="ytPdkKdXJpNKVAt3iRsH4A">完成主舰委托、贡献文明资源<small data-page-node-id="aayfnSqKutmNxLC7Y4RV95">Contribute to STELLARIS</small></span><span class="arrow" data-page-node-id="orBjnEjBiS2sYE6bvH127z">→</span></li>
+        <li data-page-node-id="SegtCqv6Q85MA9vpGyXqRD"><span class="lbl" data-page-node-id="N4K4obhUBVWZxnOphDuUuH">修复主舰并解锁空间裂隙<small data-page-node-id="eyAsR9PDQiRSooBH9b4qZ2">Restore & Unlock Rifts</small></span><span class="arrow" data-page-node-id="1FQOnzXihV83k1omB0P8Dm">→</span></li>
+        <li data-page-node-id="5bJ9grGmqRKCvEVRBfUrXA"><span class="lbl" data-page-node-id="d5CPPPwOoNngaPfDt1CFKR">探索异星世界、获得稀有材料<small data-page-node-id="biVPn8RbznU3E1BVqIl5gC">Explore & Loot</small></span><span class="arrow" data-page-node-id="J6HnYF0RB7fvUkaEvkbFID">→</span></li>
+        <li data-page-node-id="2BcgPRGo6YNLoCvd0WPpQO"><span class="lbl" data-page-node-id="6qA8Xxk9bmxAtUPZHn4Qgj">升级生态舱与物质重构技术<small data-page-node-id="A67cVmHxtfArUMpnNexw8G">Upgrade & Reconfigure</small></span><span class="arrow" data-page-node-id="wqdYSREptCuYRojMAVCFRH">→</span></li>
+        <li data-page-node-id="H8gwCFVqBzTZqS07VErZOI"><span class="lbl" data-page-node-id="yfkGFITqMXckU10JNphFUF">前往更远的星域<small data-page-node-id="YviMliupuUCJzGeNsmbOI0">Drift Forward</small></span><span class="arrow" data-page-node-id="y9i4ZjFFlOKhC2w3yTIiIN">↺</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 角色循环 ============================ -->
+<section class="section" data-page-node-id="z96lcSqaiHEZY5CKz8WKIR">
+  <div class="container" data-page-node-id="Cx5kBF9JNU2YsaqQfq2GqA">
+    <div class="eyebrow" data-page-node-id="dGqelhFHCPahGISTvX0AU8">PLAYER RHYTHM / 玩家节奏</div>
+    <h2 class="section-title" data-page-node-id="iVvNdjimM9qHMTOWAfOWEs">
+      短循环给反馈，中循环给成就感，长循环给归属感。
+      <span class="cn" data-page-node-id="lltuTeT12GuQHFhFhYDLF8">三条节奏线互不重叠但互相推动。</span>
+    </h2>
+
+    <div class="cycles" data-page-node-id="OAjXzIA9G24VnA2kP7nNKD">
+      <div class="cycle-card short" data-page-node-id="IFodDDLJW7lD95gAPyl8QD">
+        <div class="head" data-page-node-id="hVYaSanphFR98IbO6mFjao">SHORT LOOP / 短循环</div>
+        <div class="time" data-page-node-id="jk0oZztlBhd1zBfv5iAMBn">5 ~ 15</div>
+        <div class="time-unit" data-page-node-id="vATHGxbwGq1R66C9USmZnw">MINUTES</div>
+        <ul data-page-node-id="tD1i4JMdx34YJaRwgfCyzH">
+          <li data-page-node-id="otePasBz8Lgb7VSJHpQbAT">在生态舱采集或生产资源</li>
+          <li data-page-node-id="X92qkUtArV9CtfG0Gt3uc4">完成一个小型建设目标</li>
+          <li data-page-node-id="SsIIYOWjrZXpzkdDpVORST">领取或提交一项主舰委托</li>
+          <li data-page-node-id="7w8HXYzS9X2EMB4R1t7BuR">获得信用点、舱体经验或基础材料</li>
+          <li data-page-node-id="vOj8sM2CVXQXjl6MKoSRWi">完成一次明确可见的小升级</li>
+        </ul>
+      </div>
+
+      <div class="cycle-card" data-page-node-id="IVGiCVDodeuGj6YDcUJBdg">
+        <div class="head" data-page-node-id="C1WPqxPXCFAIbiInWfXINS">MID LOOP / 中循环</div>
+        <div class="time" data-page-node-id="Z43EMOHmCJwyLZkwyK2xJO">30 ~ 90</div>
+        <div class="time-unit" data-page-node-id="K84cDni8BgunQxRcSxezAx">MINUTES</div>
+        <ul data-page-node-id="31RfChh5pCfxkXEFAmBx0F">
+          <li data-page-node-id="klnERgvcVQ2o45f2m0l2If">完成生态舱阶段任务</li>
+          <li data-page-node-id="yBjNSkDt89lFElJ3SqLiJz">准备远征装备</li>
+          <li data-page-node-id="Y5qjyxApLOU1jFbE0axWQF">组队进入裂隙星域</li>
+          <li data-page-node-id="XzWA07NDvSlGP17SHXAtNM">完成副本目标并带回稀有材料</li>
+          <li data-page-node-id="KmfLieI7jQRpfmzgYtXYkJ">解锁一项生态舱模块或生产配方</li>
+        </ul>
+      </div>
+
+      <div class="cycle-card long" data-page-node-id="7oeaLBZqK98OAgvHxi0q4e">
+        <div class="head" data-page-node-id="Jd60sFjJ3ewv8XxZTEHU9J">LONG LOOP / 长循环</div>
+        <div class="time" data-page-node-id="SpvY2YPoMA3NjngFuFG1le">SEASON</div>
+        <div class="time-unit" data-page-node-id="CrAV4vk42SPl5Fi845iG2E">DAYS — WEEKS</div>
+        <ul data-page-node-id="2mAmN4efVdPIE8V2GqiFLy">
+          <li data-page-node-id="ornbgRdhimUkWltTEo6bE3">提升生态舱稳定度</li>
+          <li data-page-node-id="bp9PvmNmt8AUtyiPvUiaDq">建设自动化生产体系</li>
+          <li data-page-node-id="cDEKZK4Zt7uAZmnxVxIfGs">完成多个裂隙档案</li>
+          <li data-page-node-id="OT9zipuvM45JBWLbzAmko8">参与 STELLARIS 公共修复</li>
+          <li data-page-node-id="iDrXhguRzt6GxFOSboT3D2">推动主城完成阶段跃迁</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 生态舱 ============================ -->
+<section id="habitat" class="section" data-page-node-id="ekJrW9EQXtFRQmOBGarkA4">
+  <div class="container" data-page-node-id="hYK2Tj0pfh7Gist6oIBGD7">
+    <div class="eyebrow habitat" data-page-node-id="azdbFiWvivDBF1ttyGeuyM">HABITAT SYSTEM / 生态舱系统</div>
+    <h2 class="section-title" data-page-node-id="n3jlCJlNkfIzFB5nLK90Tv">
+      生态舱首先是一台生存设备，然后才逐渐成为家园。
+      <span class="cn" data-page-node-id="S4Bam5nX7iFJWF88Dz8b0A">四个模块，定义一台生态舱能成长成什么样。</span>
+    </h2>
+
+    <div class="modules" data-page-node-id="c9rJrK4PAutzTa3CGPOx06">
+      <div class="module-hero" data-page-node-id="CsgtECUHSvZIwBdd8AaNpx">
+        <div class="tag" data-page-node-id="dR1KTwwMGo0iXenTgT2j6V">// HABITAT — STANDARD</div>
+        <h3 data-page-node-id="LVeuGyyEPSXhOKrDPMRYMb">中央核心塔 + 环形生产平台</h3>
+        <p data-page-node-id="mNB5CsxRI6QXN3Z9K7F9wf">标准生态舱的轮廓公式：中央核心塔、环形生产平台、四向接口、外围隔离场节点。成长表现为平台扩大、生命区增加、管线由临时连接变为稳定模块。</p>
+      </div>
+      <div class="module-grid" data-page-node-id="wgdEOOlcs9yZqsq2LCSAXm">
+        <div class="module-item" data-page-node-id="FmgF1afji3GHv39hWEnzAH">
+          <div class="id" data-page-node-id="QGF1ZeqSUGYpFBZDhSgsg0">MODULE 01</div>
+          <h4 data-page-node-id="vikYi9E6rtbMOGLBR7bnRy">Isolation Field</h4>
+          <div class="cn-sub" data-page-node-id="OlAxdE9HpFa0r4Yag4f41Z">隔离场扩展模块</div>
+          <p data-page-node-id="vBb0nFCGqAMQXHSOQXxzIx">扩大可建设范围，舱体边界由断续警戒变为稳定隔离场。</p>
+        </div>
+        <div class="module-item" data-page-node-id="7p5yT2EjOMZAF9Wvh5lerd">
+          <div class="id" data-page-node-id="SDnCdceCjydTNuXfiPQuIm">MODULE 02</div>
+          <h4 data-page-node-id="r4kLzfPFVJV91uaqHIkhn5">Eco Cycle</h4>
+          <div class="cn-sub" data-page-node-id="WMn0qnJEuECjrffaYfDzEX">生态循环模块</div>
+          <p data-page-node-id="8iFvIA5bgyYEzIGV0jA9Ye">提升农业与生物系统能力，让生态舱从"活下去"迈向"长期可持续"。</p>
+        </div>
+        <div class="module-item" data-page-node-id="NzEC8Kxzc3SY7jBBjcuRnt">
+          <div class="id" data-page-node-id="jDabp4gkMODqYFFJcRNIhA">MODULE 03</div>
+          <h4 data-page-node-id="FKOczPtjigWQxlfEnxGDsP">Refabricator</h4>
+          <div class="cn-sub" data-page-node-id="bXl5rGJUxqEJteR0ysF1aA">物质重构模块</div>
+          <p data-page-node-id="WBW0RppxHJ3fCGnYGcJNhL">增加可生成资源种类，是从 Mk.I 走向 Mk.III 的关键。</p>
+        </div>
+        <div class="module-item" data-page-node-id="Zx7qFl1e0wZuyMOLSwpf6z">
+          <div class="id" data-page-node-id="9QOHQi3a6F73kcUiqJbDyA">MODULE 04</div>
+          <h4 data-page-node-id="RFAmooE14fFBgBDPD8Fw1X">Logistics</h4>
+          <div class="cn-sub" data-page-node-id="nCKSJ0R1rm4GLBzrhbhhwu">物流存储模块</div>
+          <p data-page-node-id="X4ogGqNNnGebDNwGxabIsr">提升管理便利性，让自动化与中后期多生态舱协作成为可能。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 物质重构器演进 -->
+    <div class="refactor" data-page-node-id="C5j31HCtUgdL8t8bDui641">
+      <div class="mk" data-page-node-id="FAhGF8FNkHIepVSYY2RGki">
+        <div class="mk-tag" data-page-node-id="KpdXQFOAefhtZa67v06lJA">REFABRICATOR Mk.I</div>
+        <div class="mk-name" data-page-node-id="JiOkCqWjNez4B68rmSp2wd">基础重构</div>
+        <div class="mk-sub" data-page-node-id="jD0NFcST1VIGMJlrWaJdBS">基础重构阶段</div>
+        <ul data-page-node-id="M07sD88yFKMDv2ai4DdtTB">
+          <li data-page-node-id="MZvykhwePzAIzuStXhEdgy">产出石材、煤炭与少量基础金属</li>
+          <li data-page-node-id="cXc1dJb5NoU1zoSVlrtISH">通过新手任务完成初始化</li>
+        </ul>
+        <div class="mk-unlock" data-page-node-id="8tKJnA49zzFPeIb6Dg14xT"><strong data-page-node-id="25iDlOFqgdk2Ht0sz459CU">UNLOCK</strong> 部署即得</div>
+      </div>
+      <div class="mk" data-page-node-id="3GuVrLyZlHZWuhzCmC0njs">
+        <div class="mk-tag" data-page-node-id="W42mMPgN5POJVnIARXST9Q">REFABRICATOR Mk.II</div>
+        <div class="mk-name" data-page-node-id="j0lfwWsr2J8TNRHBAY5Bof">行星重构</div>
+        <div class="mk-sub" data-page-node-id="ducAe3Q0BhCH4VBWhA2w8w">行星重构阶段</div>
+        <ul data-page-node-id="VW7gExj6YZxsGbN53LHZpf">
+          <li data-page-node-id="dntr9B6mzk4e6OXmEEMvRe">增加常规矿物</li>
+          <li data-page-node-id="e6CTrURPTLg12BMVkySpxM">需要舱体稳定度和主城任务材料</li>
+        </ul>
+        <div class="mk-unlock" data-page-node-id="yO8rSBuRfTR0TzA3wTCqfl"><strong data-page-node-id="b3CjVKD8dxEirUhEHLmavY">UNLOCK</strong> 主城委托达成</div>
+      </div>
+      <div class="mk" data-page-node-id="Znyc5bor7QjDsuVH2lqfcT">
+        <div class="mk-tag" data-page-node-id="dTKg38uhuVabgTRzKypLhc">REFABRICATOR Mk.III</div>
+        <div class="mk-name" data-page-node-id="cjYICOd0dp3K02jdoSkPuw">星核重构</div>
+        <div class="mk-sub" data-page-node-id="OW5ODBNYfIl4HKDogTuRbi">星核重构阶段</div>
+        <ul data-page-node-id="RCdJ8LEr848pjp6mBaajv1">
+          <li data-page-node-id="m8G9Txm0B9zzIkS3lEqyp4">增加稀有矿物或自定义材料</li>
+          <li data-page-node-id="S4U0AYMVUCEQH69nxATf0L">必须消耗首个裂隙首领掉落的星核部件</li>
+        </ul>
+        <div class="mk-unlock" data-page-node-id="3TyHMqMHXLm58PwKRmrUCT"><strong data-page-node-id="u5hgRO6FofFGJsE6w8KsUR">UNLOCK</strong> 首次裂隙闭环</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ STELLARIS 五大区域 ============================ -->
+<section id="stellaris" class="section" data-page-node-id="WLsL7J27jreKElpqfteIZd">
+  <div class="container" data-page-node-id="aEHxxH96zWPoM5AynBYGjl">
+    <div class="eyebrow" data-page-node-id="kpgDCbuYhbq9E3lmQFRBQP">STELLARIS DISTRICTS / 主舰五大区域</div>
+    <h2 class="section-title" data-page-node-id="X9uJNGRKIHSH54ZqMM6apZ">
+      首版只开放五个必要区域。其余留作章节奖励。
+      <span class="cn" data-page-node-id="sCK2EfUESbwouKE5yTsXwq">每个区域只有一个主识别色，绝不混用。</span>
+    </h2>
+
+    <div class="areas" data-page-node-id="7cplYcLTcufLRBcRyzXBaq">
+      <div class="area-cover" data-page-node-id="RaKD23A6nvtVFkAMKazNSz">
+        <div class="tag" data-page-node-id="vZKa2B2XgxNRCDxpIeeagv">// CENTRAL HUB — STELLARIS</div>
+        <h3 data-page-node-id="8BdZ2xhr0EOy4jUAZ67epO">中央大厅是文明还在运行的证据。</h3>
+        <p data-page-node-id="H0bKfORD5qumZ3W901v3Bz">高挑空间、中央能源轴、青蓝主体、绿/紫入口分流。生态舱入口绿、裂隙入口紫、中央系统始终保持青蓝，只展示能源、公共工程、开放裂隙三类主要信息。</p>
+      </div>
+      <div class="area-item" data-page-node-id="znCoMQHtFTRUpeJSR6iP90">
+        <div class="no" data-page-node-id="EtyocBHcrsrMT1frjEsaHh">DISTRICT A</div>
+        <h4 data-page-node-id="8EPRFGmgD62ArBCybjXHm6">冷冻苏醒区</h4>
+        <div class="en" data-page-node-id="zplD0Bril9aJ0TeDSnfiCH">Cryo Revival Bay</div>
+        <p data-page-node-id="Ma3tUbNcaqmZY0zudnpNNr">玩家出生点。竖向冷冻舱阵列、冷灰白面板、青色玻璃、唯一出口，路径灯逐段亮起。</p>
+      </div>
+      <div class="area-item" data-page-node-id="MVEyGXy2yKnIutl3hj421Q">
+        <div class="no" data-page-node-id="K18GArYuBTrm86pnJfakbG">DISTRICT B</div>
+        <h4 data-page-node-id="ztjrSiLHoQ29KivdDQZujF">中央大厅</h4>
+        <div class="en" data-page-node-id="Aok0NAYNj6isolQqXZueZA">Central Atrium</div>
+        <p data-page-node-id="Vquyysa08JDuIJAprqccdd">主舰状态、主线 NPC、文明存续进度、导航与功能入口的集中地。</p>
+      </div>
+      <div class="area-item" data-page-node-id="2VZzoUJbVX4H4ALMH761t3">
+        <div class="no" data-page-node-id="7yH9Ib0xC3H49AhD9V5UEC">DISTRICT C</div>
+        <h4 data-page-node-id="bkeuxtVZIQK5UqFIX2iKIL">生态舱部署中心</h4>
+        <div class="en" data-page-node-id="r7ngEYMC5ubaoXVrPCVVHq">Habitat Dock</div>
+        <p data-page-node-id="VIRB3kQGIyS89hlV7YWFTm">创建与管理生态舱、查看基础模块、播放首次部署反馈。</p>
+      </div>
+      <div class="area-item" data-page-node-id="oJdk9zkUPxLGdgkr1QIVC7">
+        <div class="no" data-page-node-id="ieG1V4OrNRVyePY3KAsYYh">DISTRICT D</div>
+        <h4 data-page-node-id="OBLAL2J0zJCvcMJkVnunLN">裂隙观测中心</h4>
+        <div class="en" data-page-node-id="nk3HtWzBJpBlscDWhyLU7w">Rift Observatory</div>
+        <p data-page-node-id="F3E5tvLoi165CE9X4hZAmZ">副本入口、组队和危险等级、掉落信息、裂隙开放状态。</p>
+      </div>
+      <div class="area-item" data-page-node-id="PtJ186WLpzfjcJxSuX1TNr">
+        <div class="no" data-page-node-id="nazAnIv3l4ZPbwMvHPxXnH">DISTRICT E</div>
+        <h4 data-page-node-id="tRI1gjWetOBDJeXRbchoUf">能源核心区</h4>
+        <div class="en" data-page-node-id="yDEtdt6FOR8FcobcYsUlMV">Reactor Core</div>
+        <p data-page-node-id="8G8TyCAU3v3vkY2pUqELKR">展示全服公共进度，提交文明资源，承载阶段事件。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 裂隙副本 ============================ -->
+<section id="rift" class="section" data-page-node-id="DwYAcKGCQHmKNZh3g7iL7r">
+  <div class="container" data-page-node-id="iJu7cjDGqfFqldUdqre6Uw">
+    <div class="eyebrow rift" data-page-node-id="z5vG5De1rKiVFHSLxnCjB1">RIFT PROTOCOL / 裂隙副本</div>
+    <h2 class="section-title" data-page-node-id="FpbBYB38Mtutl9AgJX59YK">
+      每个裂隙只承担一种资源功能和一个简单故事。
+      <span class="cn" data-page-node-id="gNabmyfHVMvo5FvNLVDhTq">首版只让一个副本完全开放，其余保持闸板。</span>
+    </h2>
+
+    <div class="rift-featured" data-page-node-id="DpnPFCjfFnDd49vtKXnwQV">
+      <div class="tag" data-page-node-id="ZCioEiEN7hFWCmRI6Avffm">// RIFT 01 — ACTIVE</div>
+      <h3 data-page-node-id="9lMVne8FvpkbQxHvcpZ5Wq">荒芜矿星</h3>
+      <p data-page-node-id="V5OyZMeaoLPL0tTJYG0ynI">分层沙岩峡谷、风蚀砂岩、废弃矿业、失控机械、琥珀星核。地表层、矿洞、断裂钻机、防守据点、首领区与一处明显但暂不可达的探索地标，构成第一条完整的远征纵深。</p>
+    </div>
+
+    <div class="rift-grid" data-page-node-id="eAK3iJWAVRSvv8lr5ZG441">
+      <div class="rift-card" data-page-node-id="G4FndTtFGzzMw8f51MXnXP">
+        <div class="no" data-page-node-id="qrA19hKeEtUwyM3EDqKFgj">RIFT 01 — ONLINE</div>
+        <h4 data-page-node-id="OKmgn4LZJWkoLoxgTBGQbm">荒芜矿星</h4>
+        <div class="cn" data-page-node-id="VXwX2PVYxoK7BSzxM8TUql">Wasteland Mining Star</div>
+        <p data-page-node-id="TtkUbOGAUEJBUl5im9eAxi">采集、护送、首领战。环境关键词：分层峡谷、风蚀砂岩、废弃矿场、琥珀星核。</p>
+        <div class="loot" data-page-node-id="BTvPtmhBplr7KHqWmEOqJB">核心产出 <strong data-page-node-id="u4WgQbcqCgEn5ofr7bhr0p">星核部件 · 金属材料</strong></div>
+      </div>
+      <div class="rift-card locked" data-page-node-id="GDw4FVM6SKJY1YMaKlkL7t">
+        <div class="no" data-page-node-id="UL9l3TUVIx0qE3fFNwbdev">RIFT 02 — GATED</div>
+        <h4 data-page-node-id="LIZ6mEN3Ru1WArnE9SGdDM">繁茂菌星</h4>
+        <div class="cn" data-page-node-id="YtYYWCsDML3Vq2Y0POOUQc">Verdant Mycelium Star</div>
+        <p data-page-node-id="FYe9ZXQSq2j5W95IOenCqH">巨型菌落、发光森林、毒雾。净化、收集、防守。首版不开放，闸板与暗灯预告。</p>
+        <div class="loot" data-page-node-id="UNlHEwZ2yQamRnuiFynX1A">计划产出 <strong data-page-node-id="YnLCMjAFL7exKPiCGrnkfI">异星种子 · 生态样本</strong></div>
+      </div>
+      <div class="rift-card locked" data-page-node-id="6iAEVd72pZevyeD01CBkXn">
+        <div class="no" data-page-node-id="9euPoJEYmnIIwlTYod8uvf">RIFT 03 — GATED</div>
+        <h4 data-page-node-id="QoLlvvHOtXHaqAy9G54Ntt">机械遗迹</h4>
+        <div class="cn" data-page-node-id="lUehhVHY6B6gPiPe434CnK">Mechanical Remnant</div>
+        <p data-page-node-id="ENzMRgjIZsqqH9lu7sPo0b">废弃城市、自动防御、研究所。解谜、修复、战斗。首版不开放，等待文明进度解锁。</p>
+        <div class="loot" data-page-node-id="XlRWHRH2BEqYO2q6HOYeCY">计划产出 <strong data-page-node-id="E6tYMoUpFmnNbZCTyoCCGD">自动化部件 · 数据芯片</strong></div>
+      </div>
+      <div class="rift-card" data-page-node-id="IHcKKBH1HAdppLeCi0ze7s">
+        <div class="no" data-page-node-id="bcpHR4i9ywnIMQQWVnSn0y">CORE RULE / 设计原则</div>
+        <h4 style="font-size:18px; line-height:1.6;" data-page-node-id="CSBiKoLpsYLoU61A0HU6KI">不以纯粹清怪作为全部目标，每次进入都必须有明确任务。</h4>
+        <p data-page-node-id="8TgW3Z6ZS2DgaX3QjDm67M">首领需要可识别的技能预兆，原住民不应全部作为敌人，核心奖励必须服务生态舱或公共进度。</p>
+        <div class="loot" data-page-node-id="7TfiM3KzmWCYu5K11J8JaL">奖励去向 <strong data-page-node-id="uCn1kO8SNsj1mn4OLzFqEJ">生态舱 / 公共进度</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 视觉规范 / 色板 / 支柱 ============================ -->
+<section class="section" data-page-node-id="tyH1uUp1UkAdtCozchb8t2">
+  <div class="container" data-page-node-id="RNuE1AWhNxVKTD76pxnR2A">
+    <div class="eyebrow relic" data-page-node-id="roGxqSV0V0bLiPJbQCyENS">VISUAL SYSTEM / 视觉规范</div>
+    <h2 class="section-title" data-page-node-id="LvjcFU6tLW6lWDuPsHkwMu">
+      高级感来自结构、比例、留白和功能秩序，不是粒子数量。
+      <span class="cn" data-page-node-id="51i7Fm1fjs3bsxqXRuXwzt">配色锁死，功能即美术，克制即高级。</span>
+    </h2>
+
+    <div class="visual-pillars" data-page-node-id="PK24R2TTZBDbP4WGBFrsCo">
+      <div class="palette" data-page-node-id="8siGYvkLABm4ifbSsAlHbz">
+        <h3 data-page-node-id="5Dh701RblxkAbm6VxixGYz">锁定的色板</h3>
+        <p data-page-node-id="eWq8xC7bnDsUA4w7os0jWp">一个空间只保留一个主识别色；红橙警报色占比必须很低；粒子只用于状态变化，不成为环境常态。所有配比都写在本项目的视觉与品牌规范 v2 中。</p>
+
+        <div class="swatch-row" data-page-node-id="deeL6VQajjPkKW1jXJyEPI">
+          <div class="swatch" style="background:#171C22" data-tag="#171C22" data-page-node-id="ELEidzJGPRWlK8VKqa9QVQ"></div>
+          <div class="swatch" style="background:#2D3740" data-tag="#2D3740" data-page-node-id="FCTxlLEaTCpg2G12fDAGIi"></div>
+          <div class="swatch" style="background:#53636B" data-tag="#53636B" data-page-node-id="cUow4rZkXen35mVUgiOjtR"></div>
+          <div class="swatch" style="background:#A9BBC3" data-tag="#A9BBC3" data-page-node-id="seThrbrs4WwWpP5mbGH9Kh"></div>
+          <div class="swatch" style="background:#DCE7E8" data-tag="#DCE7E8" data-page-node-id="IVBGC44tNA2EGwzBc75vTA"></div>
+          <div class="swatch" style="background:#62D9FF" data-tag="#62D9FF" data-page-node-id="DepmTA4ZRqgZ50Ujk4OFoN"></div>
+        </div>
+
+        <div style="margin-top: 56px;" data-page-node-id="ciEEmlwh4ZziigMdi8Eijn"></div>
+
+        <div class="swatch-row" data-page-node-id="KVolb93oRptS1F81fIW6C1">
+          <div class="swatch" style="background:#70D98A" data-tag="#70D98A" data-page-node-id="QxSzUCE23okaZCD9qD1bAP"></div>
+          <div class="swatch" style="background:#36BFA5" data-tag="#36BFA5" data-page-node-id="j4hApAzealcWUszHfjzXRI"></div>
+          <div class="swatch" style="background:#9A6BFF" data-tag="#9A6BFF" data-page-node-id="zguqFu1OZcqEEM6Y4ITwSU"></div>
+          <div class="swatch" style="background:#292450" data-tag="#292450" data-page-node-id="fynmLv0d5DmScjwBsZHvfP"></div>
+          <div class="swatch" style="background:#D8B45B" data-tag="#D8B45B" data-page-node-id="sacMZjt3B5iM3mo1Nn4E3k"></div>
+          <div class="swatch" style="background:#98644B" data-tag="#98644B" data-page-node-id="gAPTQoc57rFmAr2f5q433y"></div>
+        </div>
+
+        <div style="margin-top: 56px;" data-page-node-id="lzdYzigJROxpnqQHzp1sBF"></div>
+
+        <div class="swatch-row swatch-wide" data-page-node-id="OT8uhdII49fqfgMc8FfEbI">
+          <div class="swatch" style="background:#FFAA45" data-tag="#FFAA45  ATTN" data-page-node-id="cG7ce9lCNnjj7BcjGzEnWy"></div>
+          <div class="swatch" style="background:#FFD18A" data-tag="#FFD18A  ATTN-2" data-page-node-id="Ye093Q5xZIiJnfIT1hcKUF"></div>
+          <div class="swatch" style="background:#FF4B55" data-tag="#FF4B55  DANGER" data-page-node-id="XEbk4q8KbbamS3DcBbWVrH"></div>
+        </div>
+      </div>
+
+      <ul class="pillars-list" data-page-node-id="hHeroy3Ga8Nhx52j6ddgre">
+        <li data-page-node-id="cHreq37fm8vvFKlH8B0wHt">
+          <div class="idx" data-page-node-id="tfgFGCnWD8WDQoTn3qy2KP">01</div>
+          <div data-page-node-id="QEnuxSlNH6pVeN5vQFnYQh">
+            <h4 data-page-node-id="tOdBkGga1V81JntPewH3xm">方块可信</h4>
+            <p data-page-node-id="c2KyXBwuoboKfUyXUrHCQ3">所有建筑和设备先满足 Minecraft 的体素逻辑，再追求电影感。AI 概念图中的圆滑表面必须转译为可搭建的方块模块。</p>
+          </div>
+        </li>
+        <li data-page-node-id="f2nsHlSDswmQJvnGvaDRmt">
+          <div class="idx" data-page-node-id="udiWKqTd846SL8XUxlGfF4">02</div>
+          <div data-page-node-id="fZ8AJ7NPvCxcqBk8bZa1w6">
+            <h4 data-page-node-id="drBZdrOrNh15J33J9ZnD1H">功能即美术</h4>
+            <p data-page-node-id="C3kC2fgCKGlYf3QQqv9Gwb">每种颜色、灯光和材质都承担明确含义。青蓝是秩序，绿是生命，紫是裂隙与未知，金是遗物，橙是注意，红只在异常状态短时出现。</p>
+          </div>
+        </li>
+        <li data-page-node-id="jHEGGJDmqD8Bk5E2I75jTQ">
+          <div class="idx" data-page-node-id="jcfUjp5sAuM1tCEphISik6">03</div>
+          <div data-page-node-id="iZFGJD8FmDvcf8Ak4aVVAq">
+            <h4 data-page-node-id="1NdIOrcYYAPwWymbl6YylA">克制的高级感</h4>
+            <p data-page-node-id="haq97dBKuGHkRHDWKCqsGP">大面保持干净，细节集中在设备、接口和维护区。一个空间只保留一个主要视觉焦点，红橙警报色占比必须很低。</p>
+          </div>
+        </li>
+        <li data-page-node-id="7PCQ1oxu9PdYFHpSXQ9W0R">
+          <div class="idx" data-page-node-id="mLhEoH4vb4hr3MvweAUdCY">04</div>
+          <div data-page-node-id="QJZRNdroDgQZkAqZwFjbQ5">
+            <h4 data-page-node-id="KurNCtGcSknAtCSN9pETQP">可见的文明重建</h4>
+            <p data-page-node-id="yoipyGtR0dl4X1JF8vmmX1">世界必须随着公共进度发生变化：暗区恢复照明、断裂管线重新供能、机械臂重新运行、封锁舱门开启。公共进度必须产生可见变化，不能只是一条数字进度条。</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 开发路线 ============================ -->
+<section id="roadmap" class="section" data-page-node-id="iEhcv4ioPnSm01OEnCDMRe">
+  <div class="container" data-page-node-id="vckkOMs9OcQGrCTYPpvb6A">
+    <div class="eyebrow" data-page-node-id="BmChgZVLpH6TFF4nHeI22a">ROADMAP / 开发路线</div>
+    <h2 class="section-title" data-page-node-id="LvdfRzhg0LRtcTFcO7bzHE">
+      先让一条新手体验拥有完整且统一的视觉表达，再扩展整座主城。
+      <span class="cn" data-page-node-id="M0cLAXsLLFo5VJIqymRFEc">MVP 范围严格控制，首版不为所有功能铺路。</span>
+    </h2>
+
+    <div class="timeline" data-page-node-id="HbC8hrCndIVGCoCmlHFF3a">
+      <div class="timeline-item" data-page-node-id="v1nNmjR6RJ9i8hohVr7yJZ">
+        <div class="phase" data-page-node-id="cnK4OUBgNeDTAEcBF9brAw">PHASE 0</div>
+        <div class="body" data-page-node-id="c8WBmWQKFPHDtp8B53NrLu">
+          <h4 data-page-node-id="neKvXSilbr1fvNvNRDX1dp">技术验证</h4>
+          <p data-page-node-id="N0le6PcCfrHGrNks7sWDl7">核对服务端与插件版本，建立测试服，确认 SuperiorSkyblock2、BTDungeons、MythicMobs、CraftEngine、Citizens 等核心工具能稳定联动。确定玩家数据、全服进度与变量的唯一来源。</p>
+        </div>
+        <div class="meta" data-page-node-id="FS8jEW6lxoCZkiiZ1BM6m9"><strong data-page-node-id="sxSM89xmx7QE9OqJNmcXA2">验收</strong>创建生态舱、副本进出、数据持久化均无管理介入</div>
+      </div>
+
+      <div class="timeline-item" data-page-node-id="stwNbEEoliAwfe4nEOUvnL">
+        <div class="phase" data-page-node-id="miLj52I3xiaPqAfGZmajpG">PHASE 1</div>
+        <div class="body" data-page-node-id="WKz4XuMbqzkbBsCTsu3QpP">
+          <h4 data-page-node-id="SU9qJLS41aNy3wLnDRWSUT">核心闭环原型</h4>
+          <p data-page-node-id="mkdDx3l1MaeKolKC8y5vms">标准生态舱、物质重构器 Mk.I / Mk.II、简化 STELLARIS、荒芜矿星灰盒副本、资源提交与文明进度。跑通"副本材料升级生态舱"完整闭环。</p>
+        </div>
+        <div class="meta" data-page-node-id="Gj3j9QsEYyVJhcjOpyByYG"><strong data-page-node-id="rfesTEF6cZMDLo5QenRCdP">验收</strong>测试玩家无需解释即可完成生产—提交—远征—升级</div>
+      </div>
+
+      <div class="timeline-item" data-page-node-id="yteyg9lheKXyzlidflj0EZ">
+        <div class="phase" data-page-node-id="4Afrtm9sQqiAaPESJSULJb">PHASE 2</div>
+        <div class="body" data-page-node-id="50BGDlCKHpkxXGGh0Qoe9E">
+          <h4 data-page-node-id="AJWb1PZLFSsH1fvm5sUTsi">新手体验与世界观包装</h4>
+          <p data-page-node-id="gymXe7aH2w837uKspOMupH">冷冻苏醒流程、主城导航、NPC 与终端文案、统一术语、关键声音与粒子反馈、首次裂隙任务链。世界观通过空间与系统变化体现，不依赖 NPC 讲解。</p>
+        </div>
+        <div class="meta" data-page-node-id="IbrhFJnMY5wly6yelA4wus"><strong data-page-node-id="OOSM6rQ2QgDgs253k9EBRk">验收</strong>新玩家 15 分钟内成功部署生态舱且理解三者关系</div>
+      </div>
+
+      <div class="timeline-item" data-page-node-id="PZRETobppHMAbYQWgGV8vW">
+        <div class="phase" data-page-node-id="xUJ9xraU3B2C1ecSFFA5iX">PHASE 3</div>
+        <div class="body" data-page-node-id="HqwFEAb9y4Jt7iLODM7QMr">
+          <h4 data-page-node-id="e3kcG3bdT01oP00qWWXFVw">首版内容扩展</h4>
+          <p data-page-node-id="iNgmnlI6jem4OvgRrinOp5">繁茂菌星、机械遗迹、四类生态舱模块、日常与周期委托、排行榜与文明档案、第一个完整文明工程、基础经济调优。从 MVP 扩展到可持续游玩的首个公开版本。</p>
+        </div>
+        <div class="meta" data-page-node-id="r6ciKqtV2otZopfyee3Coj"><strong data-page-node-id="fnqBGb0drw5L7JoCKXGmL0">验收</strong>三个裂隙拥有不同目标和奖励，不存在明显无限产出</div>
+      </div>
+
+      <div class="timeline-item" data-page-node-id="nTiZWODzwXm0Ynr0KGgV15">
+        <div class="phase" data-page-node-id="yn1tI1IZKXWOYKD8YAF0mP">PHASE 4</div>
+        <div class="body" data-page-node-id="YGpN2zjxr1wc4GSe22WVBk">
+          <h4 data-page-node-id="WdGGE9Cygdpf9cN44dCSyb">测试与上线准备</h4>
+          <p data-page-node-id="MrcsRI08dPEXSuplDvuvQI">封闭测试、新玩家路径观察、经济和掉落调整、多人并发与副本压力测试、权限与漏洞测试、数据备份恢复演练、上线公告与帮助文档。</p>
+        </div>
+        <div class="meta" data-page-node-id="WrlUSFuEFtBC3qZQQq5NUd"><strong data-page-node-id="xzjI45QPAtZC10CYXatrwC">验收</strong>核心流程无阻断缺陷，关键数据可备份恢复</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ JOIN / CTA ============================ -->
+<section class="join" data-page-node-id="H7CN0FI7SgUpP5jiKPU6xv">
+  <div class="join-inner" data-page-node-id="KSkauYUpJ7kDncjfGwO0e0">
+    <div class="join-tag" data-page-node-id="zDDJvi0rUVk7W8IzyQjR7B">JOIN THE DRIFT // 加入开拓者</div>
+    <h2 data-page-node-id="CwSLrYv2ff4ZxsimKQuVrt">
+      Build. Explore. Endure.
+      <span class="cn" data-page-node-id="NEo4GWMNy2KZcPFhMdW6xF">从一座生态舱开始，重建一片星海。</span>
+    </h2>
+    <p data-page-node-id="xQmxJxAnZugqYpdEGqROL9">
+      项目当前处于 MVP 验证阶段。文档、视觉规范与核心循环已定稿。<br data-page-node-id="X3Ix8GkCwy1L5N6CbMTGGS">
+      招募测试玩家、技术协作与世界观同好；欢迎一起把星郡送上星海。
+    </p>
+
+    <a href="#" class="join-cta" data-page-node-id="lR9zLEfJsF3e5D8bI6EqOG">
+      REQUEST SERVER ACCESS
+      <span class="arrow" data-page-node-id="49q3PHRO8hrHgoQJAryrzU"></span>
+    </a>
+
+    <div class="join-meta" data-page-node-id="dEE5atxVwJqE9Kgtp98RD9">
+      <div class="join-meta-item" data-page-node-id="N0yRPalW3gQEaFZf22mHto">
+        <div class="k" data-page-node-id="hUBRbsXEwb3jYCou4rJq9D">DOC</div>
+        <div class="v" data-page-node-id="LbUM4xxjAnOzckvKip3pK0">项目计划书 v2 · 世界观 v2 · 视觉规范 v2</div>
+      </div>
+      <div class="join-meta-item" data-page-node-id="o3UGXwVGwkqKwld3VUCYoA">
+        <div class="k" data-page-node-id="eJMx5JyH6OWIjexMxh02SP">CONTACT</div>
+        <div class="v" data-page-node-id="8CC3tcHBcbM3gREFJ6mZrg">QQ 群 / 频道（筹备中）</div>
+      </div>
+      <div class="join-meta-item" data-page-node-id="h0n1O2jvbE3yKRsOB4hIOU">
+        <div class="k" data-page-node-id="1Y06rcTyBuvAn3sV5TfEk7">STAGE</div>
+        <div class="v" data-page-node-id="cPU1lRc2ifdzHFHm9aEIvt">Phase 0 — 技术验证中</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer data-page-node-id="7ts8DUczXftmBZY98Ic05k">
+  <div class="footer-inner" data-page-node-id="tiz9581PptLsaBuCKoVh0r">
+    <div class="brand" data-page-node-id="GjptP4l2NViCLk9DRa3egT">
+      <span class="accent" data-page-node-id="ct12D5E0E45A1EcC9WEG5W">STELLARIS</span> // 代号：星郡 · Minecraft 星系生存服务器
+    </div>
+    <div data-page-node-id="Vn6KK1MBeAQ9cc38JcY54k">
+      PROJECT STELLARIS · v2 · 2026
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

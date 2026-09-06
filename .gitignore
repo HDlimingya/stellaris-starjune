@@ -1,0 +1,16 @@
+# ===== 临时 / 预览产物 =====
+_preview/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# ===== 原始大图素材（网页不直接引用，不入库以控制体积）=====
+视觉意向图/
+
+# ===== 音频源文件备份（保留 mp3，不收录源 m4a/wav）=====
+audio/*.m4a
+audio/*.wav
+
+# ===== 冗余版本备份 =====
+stellaris官网_v1_backup.html

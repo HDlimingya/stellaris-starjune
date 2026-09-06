@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="Zh1KQ92qd9cjcPcoYt2kGY">
+<head data-page-node-id="vVPySwrj1CwAgs9pHitG1b">
+<meta charset="UTF-8" data-page-node-id="HsBVKnr9fBQtW6f9G4RLaN" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="aOOw2UEC5f7iN0AS9YNjA6" />
+<title>STELLARIS // 代号：星郡 — 世界观档案库</title>
+<meta name="description" content="代号：星郡（STELLARIS）— 方块美学下的高级工业硬科幻。经营你的生态舱，为方舟主舰提供生存资源；穿越空间裂隙寻找异星科技，与其他开拓者共同重建文明。" data-page-node-id="DPWUe7TnxqFe1BtL9nI11C" />
+<link rel="icon" type="image/png" href="img/favicon.png" data-page-node-id="ZmS6BoGo7VuVOHiRUAxmtg" />
+
+<!-- 字体 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" data-page-node-id="eha8B6lFH0h7IYHIaB3Ysn" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin data-page-node-id="uGr0lNkaAZXZUD5cB6brD4" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Noto+Serif+SC:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" data-page-node-id="alsmJJtL7ouLmf4RUlLh9Z" />
+
+<style>
+/* =========================================================
+   STELLARIS // 代号：星郡 — v2 世界观档案库
+   单文件 · 多视图（首页 / 世界观Wiki / 设定图鉴）
+   遵循 stellaris星郡视觉效果与品牌规范 v2 色板
+   舰体底色 #171C22 #2D3740 #53636B | 冷白 #DCE7E8 | 合金灰 #A9BBC3
+   青蓝#62D9FF 绿#70D98A 紫#9A6BFF 金#D8B45B 橙#FFAA45 红#FF4B55
+   ========================================================= */
+
+:root{
+  --c-void:#07090C;
+  --c-deep:#0B0E12;
+  --c-hull:#12161C;
+  --c-panel:#161C23;
+  --c-panel2:#1C242D;
+  --c-gun:#2D3740;
+  --c-line:#263039;
+  --c-line2:#32404b;
+  --c-cool-white:#DCE7E8;
+  --c-alloy:#A9BBC3;
+  --c-dim:#75858F;
+  --c-mute:#4E5A63;
+
+  --c-stellaris:#62D9FF;
+  --c-habitat:#70D98A;
+  --c-habitat-deep:#36BFA5;
+  --c-rift:#9A6BFF;
+  --c-rift-deep:#6C3FD1;
+  --c-gold:#D8B45B;
+  --c-gold-deep:#98644B;
+  --c-warn:#FFAA45;
+  --c-danger:#FF4B55;
+
+  --font-en:'Space Grotesk',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-cn:'Noto Sans SC',sans-serif;
+  --font-serif:'Cormorant Garamond','Noto Serif SC',Georgia,serif;
+
+  --glass:rgba(12,16,22,.62);
+  --glass-line:rgba(160,190,205,.14);
+  --edge:1px solid var(--c-line);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--c-void);
+  color:var(--c-cool-white);
+  font-family:var(--font-cn);
+  font-weight:300;
+  line-height:1.7;
+  overflow-x:hidden;
+  letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none;}
+::selection{background:rgba(98,217,255,.25);color:#fff;}
+
+/* ---------- 滚动条 ---------- */
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-track{background:var(--c-deep);}
+::-webkit-scrollbar-thumb{background:var(--c-gun);border-radius:5px;border:2px solid var(--c-deep);}
+::-webkit-scrollbar-thumb:hover{background:var(--c-line2);}
+
+/* ---------- 粒子背景画布 ---------- */
+#fx-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#fx-canvas.is-off{display:none;}
+/* 星云径向光斑层 */
+#nebula{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 18% 12%,rgba(98,217,255,.05),transparent 60%),
+    radial-gradient(800px 500px at 82% 22%,rgba(154,107,255,.06),transparent 60%),
+    radial-gradient(700px 700px at 55% 88%,rgba(54,191,165,.04),transparent 60%),
+    radial-gradient(600px 400px at 95% 65%,rgba(216,180,91,.03),transparent 60%);
+  transition:opacity 1s;
+}
+/* 全局扫描线微纹理 */
+#scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0px,rgba(255,255,255,.06) 1px,transparent 1px,transparent 4px);}
+body.no-fx #fx-canvas,body.no-fx #nebula,body.no-fx #scanlines{opacity:0;}
+
+/* 内容层 z 层级高于背景 */
+#app{position:relative;z-index:2;}
+
+/* ---------- 顶部 HUD 导航 ---------- */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 40px;
+  background:linear-gradient(180deg,rgba(7,9,12,.9),rgba(7,9,12,0));
+  backdrop-filter:blur(2px);
+  transition:background .4s,box-shadow .4s;
+}
+#topbar.scrolled{background:rgba(7,9,12,.86);box-shadow:0 1px 0 var(--c-line);}
+.top-brand{display:flex;align-items:center;gap:12px;cursor:pointer;}
+.top-brand img{height:30px;width:30px;image-rendering:pixelated;}
+.top-brand .name{font-family:var(--font-en);font-weight:500;letter-spacing:.18em;font-size:14px;color:var(--c-cool-white);}
+.top-brand .name b{color:var(--c-stellaris);font-weight:500;}
+.top-brand .sub{font-family:var(--font-mono);font-size:9px;color:var(--c-dim);letter-spacing:.3em;margin-top:-2px;}
+
+.top-nav{display:flex;gap:6px;}
+.nav-btn{
+  position:relative;border:0;background:transparent;cursor:pointer;
+  font-family:var(--font-en);color:var(--c-alloy);
+  font-size:12px;letter-spacing:.14em;padding:8px 16px;
+  text-transform:uppercase;transition:color .25s;
+}
+.nav-btn:hover{color:var(--c-cool-white);}
+.nav-btn.active{color:var(--c-stellaris);}
+.nav-btn.active::after{
+  content:'';position:absolute;left:16px;right:16px;bottom:2px;height:1px;
+  background:var(--c-stellaris);box-shadow:0 0 8px rgba(98,217,255,.7);
+}
+.nav-btn .cn{font-family:var(--font-cn);font-size:10px;letter-spacing:.2em;margin-left:6px;color:var(--c-dim);}
+
+.top-right{display:flex;align-items:center;gap:8px;}
+.icon-btn{
+  border:var(--edge);background:var(--glass);color:var(--c-alloy);cursor:pointer;
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:all .25s;backdrop-filter:blur(6px);
+}
+.icon-btn:hover{color:var(--c-cool-white);border-color:var(--c-line2);}
+
+/* 汉堡菜单（仅移动端） */
+.menu-btn{display:none;}
+.menu-btn svg{width:18px;height:18px;}
+.nav-veil{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);
+  z-index:95;opacity:0;pointer-events:none;transition:opacity .3s;}
+
+/* ---------- 音乐播放器（右下角） ---------- */
+#player{
+  position:fixed;right:26px;bottom:26px;z-index:90;
+  width:340px;
+  background:linear-gradient(160deg,var(--glass),rgba(10,13,18,.82));
+  border:var(--edge);border-radius:14px;overflow:hidden;
+  backdrop-filter:blur(16px);
+  box-shadow:0 18px 50px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.02);
+  transform:translateY(calc(100% + 30px));
+  opacity:0;pointer-events:none;
+  transition:transform .5s cubic-bezier(.2,.9,.25,1),opacity .4s;
+}
+#player.open{transform:translateY(0);opacity:1;pointer-events:auto;}
+#player .pl-top{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:var(--edge);}
+#player .pl-art{
+  width:46px;height:46px;border-radius:8px;overflow:hidden;position:relative;flex:none;
+  background:linear-gradient(135deg,#10141a,#0c2233);
+  border:1px solid var(--c-line);
+}
+#player .pl-art::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 30%,rgba(98,217,255,.35),transparent 60%),url('img/00-hero-mainvisual.png') center/cover;opacity:.6;}
+#player .pl-art.rot .disk{animation:spin 8s linear infinite;}
+#player .pl-meta{flex:1;min-width:0;}
+#player .pl-title{font-family:var(--font-en);font-size:13px;color:var(--c-cool-white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.06em;}
+#player .pl-sub{font-family:var(--font-mono);font-size:9px;color:var(--c-dim);letter-spacing:.2em;text-transform:uppercase;margin-top:2px;}
+#player .pl-x{border:0;background:transparent;color:var(--c-dim);cursor:pointer;font-size:15px;}
+#player .pl-x:hover{color:var(--c-cool-white);}
+#player .pl-bar{padding:10px 16px 4px;}
+#player .pl-prog{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:9px;color:var(--c-dim);}
+#player .pl-track{flex:1;height:3px;background:var(--c-gun);border-radius:2px;position:relative;cursor:pointer;}
+#player .pl-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--c-stellaris);border-radius:2px;box-shadow:0 0 6px rgba(98,217,255,.5);}
+#player .pl-ctl{display:flex;align-items:center;justify-content:center;gap:18px;padding:8px 0 12px;}
+#player .pl-btn{border:0;background:transparent;color:var(--c-alloy);cursor:pointer;font-size:16px;transition:color .2s;}
+#player .pl-btn:hover{color:var(--c-cool-white);}
+#player .pl-play{
+  width:42px;height:42px;border-radius:50%;background:var(--c-stellaris);color:#041018;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 20px rgba(98,217,255,.35);transition:transform .2s;
+}
+#player .pl-play:hover{transform:scale(1.06);}
+#player .pl-vol{display:flex;align-items:center;gap:6px;padding:0 16px 12px;color:var(--c-dim);font-size:12px;}
+#player .pl-vol input{flex:1;accent-color:var(--c-stellaris);height:3px;cursor:pointer;}
+#player .pl-list{padding:4px 8px 12px;max-height:120px;overflow-y:auto;border-top:1px solid rgba(160,190,205,.08);}
+#player .pl-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:6px;cursor:pointer;transition:background .2s;}
+#player .pl-item:hover{background:rgba(160,190,205,.06);}
+#player .pl-item.on{color:var(--c-stellaris);}
+#player .pl-item .n{font-family:var(--font-mono);font-size:10px;color:var(--c-dim);width:20px;}
+#player .pl-item .t{font-size:12px;color:var(--c-cool-white);flex:1;}
+#player .pl-item .s{font-family:var(--font-mono);font-size:9px;color:var(--c-dim);}
+
+/* ---------- 视图系统 ---------- */
+.view{display:none;}
+.view.active{display:block;animation:viewIn .6s cubic-bezier(.2,.8,.25,1);}
+@keyframes viewIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+#global-footer{display:none;}
+body[data-view="home"] #global-footer{display:block;}
+
+.section-head{
+  padding:96px 40px 30px;max-width:1320px;margin:0 auto;
+}
+.section-head .tag{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:10px;letter-spacing:.4em;color:var(--c-dim);text-transform:uppercase;}
+.section-head .tag::before{content:'';width:26px;height:1px;background:var(--c-line2);}
+.section-head h2{font-family:var(--font-en);font-size:clamp(28px,4vw,52px);font-weight:300;letter-spacing:.04em;color:var(--c-cool-white);margin-top:10px;line-height:1.15;}
+.section-head h2 em{font-style:normal;color:var(--c-stellaris);}
+.section-head .sub{color:#b7c3c8;font-size:14.5px;line-height:1.9;margin-top:12px;max-width:640px;}
+
+/* ============ 视图一：首页 ============ */
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:url('img/00-hero-mainvisual.png') center 42%/cover no-repeat;}
+.hero-bg::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(7,9,12,.35),rgba(7,9,12,.25) 40%,var(--c-void));}
+.hero-content{position:relative;text-align:center;padding:0 20px;z-index:3;}
+.hero-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.5em;color:var(--c-alloy);text-transform:uppercase;opacity:.8;}
+.hero-eyebrow span{color:var(--c-stellaris);}
+.hero-title{
+  font-family:var(--font-en);font-weight:700;font-size:clamp(52px,11vw,150px);
+  line-height:.95;letter-spacing:.02em;color:#fff;margin:18px 0 6px;
+  text-shadow:0 4px 40px rgba(0,0,0,.6);
+}
+.hero-title .grad{background:linear-gradient(120deg,#62D9FF,#70D98A 45%,#9A6BFF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-title small{display:block;font-family:var(--font-cn);font-weight:300;font-size:clamp(18px,2.4vw,30px);letter-spacing:.4em;color:var(--c-cool-white);text-shadow:0 2px 20px rgba(0,0,0,.6);margin-top:8px;-webkit-text-fill-color:var(--c-cool-white);}
+.hero-zh{font-size:clamp(15px,1.8vw,22px);color:var(--c-alloy);letter-spacing:.35em;margin:26px 0 34px;font-weight:300;}
+.hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;cursor:pointer;
+  font-family:var(--font-en);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  padding:14px 30px;border-radius:2px;transition:all .3s;position:relative;overflow:hidden;
+}
+.btn-primary{background:var(--c-stellaris);color:#041018;font-weight:500;}
+.btn-primary:hover{box-shadow:0 0 30px rgba(98,217,255,.5);transform:translateY(-2px);}
+.btn-ghost{border:1px solid rgba(220,231,232,.3);color:var(--c-cool-white);background:rgba(7,9,12,.3);backdrop-filter:blur(4px);}
+.btn-ghost:hover{border-color:var(--c-stellaris);color:var(--c-stellaris);}
+.btn .arr{transition:transform .3s;}
+.btn:hover .arr{transform:translateX(4px);}
+.hero-scroll{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--c-dim);font-family:var(--font-mono);font-size:9px;letter-spacing:.4em;cursor:pointer;}
+.hero-scroll .line{width:1px;height:44px;background:linear-gradient(180deg,var(--c-dim),transparent);overflow:hidden;position:relative;}
+.hero-scroll .line::after{content:'';position:absolute;left:0;top:-100%;width:100%;height:100%;background:var(--c-stellaris);animation:drip 2.2s ease-in-out infinite;}
+@keyframes drip{0%{top:-100%;}60%,100%{top:100%;}}
+
+/* 宣言页 — 编辑杂志版式 */
+.manifesto{position:relative;padding:140px 40px 120px;max-width:1320px;margin:0 auto;}
+
+/* 第 1 行：顶部小标识条 */
+.manifesto-top{display:flex;align-items:center;justify-content:space-between;padding-bottom:32px;border-bottom:1px solid var(--c-line);margin-bottom:64px;}
+.manifesto-top-l{display:flex;align-items:center;gap:18px;}
+.manifesto-top-l .num{font-family:var(--font-mono);font-size:11px;color:var(--c-stellaris);letter-spacing:.3em;}
+.manifesto-top-l .label{font-family:var(--font-mono);font-size:10px;color:var(--c-mute);letter-spacing:.32em;text-transform:uppercase;}
+.manifesto-top-r{font-family:var(--font-en);font-size:11px;color:var(--c-mute);letter-spacing:.3em;text-transform:uppercase;}
+
+/* 第 2 行：超大引述语 */
+.manifesto-quote{
+  font-family:var(--font-serif);
+  font-weight:300;
+  font-size:clamp(36px,5.4vw,76px);
+  line-height:1.25;
+  letter-spacing:.01em;
+  color:var(--c-cool-white);
+  max-width:1100px;
+  text-wrap:balance;
+  position:relative;
+  padding-left:28px;
+  margin-bottom:88px;
+}
+.manifesto-quote::before{
+  content:'';
+  position:absolute;
+  left:0;top:8px;bottom:8px;
+  width:2px;
+  background:linear-gradient(180deg,var(--c-stellaris),transparent 80%);
+}
+.manifesto-quote em{
+  font-style:normal;
+  color:var(--c-stellaris);
+  font-weight:400;
+}
+.manifesto-quote strong{
+  font-weight:400;
+  color:#fff;
+  letter-spacing:.005em;
+}
+
+/* 第 3 行：左正文 + 右铭牌 */
+.manifesto-body{
+  display:grid;
+  grid-template-columns:1.3fr 220px;
+  gap:80px;
+  align-items:start;
+  margin-bottom:96px;
+}
+.manifesto-cn{
+  font-family:var(--font-cn);
+  font-weight:400;
+  font-size:clamp(17px,1.55vw,22px);
+  line-height:2.05;
+  color:rgba(220,231,232,.78);
+  letter-spacing:0;
+  max-width:640px;
+  padding-left:24px;
+  border-left:1px solid var(--c-line);
+}
+.manifesto-cn p{margin-bottom:14px;}
+.manifesto-cn p:last-child{margin-bottom:0;}
+.manifesto-cn b{font-weight:600;color:var(--c-cool-white);}
+.manifesto-cn .hl{color:var(--c-stellaris);font-weight:500;}
+.manifesto-cn .hl2{color:var(--c-habitat);font-weight:500;}
+.manifesto-cn .hl3{color:var(--c-rift);font-weight:500;}
+
+/* 右侧 STELLARIS 垂直铭牌 */
+.manifesto-mark{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:18px;
+  padding-top:6px;
+}
+.manifesto-mark-stack{
+  font-family:var(--font-en);
+  font-weight:500;
+  font-size:clamp(28px,3.6vw,52px);
+  line-height:.9;
+  letter-spacing:.05em;
+  color:var(--c-cool-white);
+  opacity:.16;
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  font-feature-settings:"ss01","cv01";
+  padding:10px 0;
+}
+.manifesto-mark-stack span{
+  color:var(--c-stellaris);
+  opacity:.85;
+  font-weight:600;
+}
+.manifesto-mark-cap{
+  font-family:var(--font-mono);
+  font-size:9px;
+  color:var(--c-mute);
+  letter-spacing:.34em;
+  text-transform:uppercase;
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  align-self:flex-end;
+}
+
+/* 第 4 行：金色主句 + 元信息 */
+.manifesto-foot{
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:64px;
+  align-items:start;
+  padding-top:56px;
+  border-top:1px solid var(--c-line);
+}
+.manifesto-lead{
+  font-family:var(--font-serif);
+  font-weight:400;
+  font-style:italic;
+  font-size:clamp(20px,2vw,26px);
+  line-height:1.65;
+  color:var(--c-gold);
+  letter-spacing:.02em;
+  padding:6px 0 6px 22px;
+  border-left:2px solid var(--c-gold);
+  background:linear-gradient(90deg,rgba(216,180,91,.05),transparent 70%);
+  max-width:560px;
+}
+.manifesto-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.manifesto-meta > div{
+  display:flex;flex-direction:column;gap:10px;
+  padding:6px 0;
+  transition:transform .25s;
+}
+.manifesto-meta > div:hover{transform:translateY(-2px);}
+.manifesto-meta .k{font-family:var(--font-mono);font-size:9px;color:var(--c-mute);letter-spacing:.32em;text-transform:uppercase;}
+.manifesto-meta .v{font-family:var(--font-en);font-size:18px;color:var(--c-cool-white);letter-spacing:.02em;font-weight:500;}
+.manifesto-meta .v .sub{display:block;font-family:var(--font-cn);font-size:11px;color:var(--c-dim);letter-spacing:.15em;margin-top:4px;font-weight:400;}
+
+/* 响应式 */
+@media(max-width:980px){
+  .manifesto{padding:80px 24px 80px;}
+  .manifesto-top{margin-bottom:48px;}
+  .manifesto-quote{font-size:clamp(28px,7vw,48px);margin-bottom:56px;}
+  .manifesto-body{grid-template-columns:1fr;gap:40px;margin-bottom:64px;}
+  .manifesto-mark{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;}
+  .manifesto-mark-stack{writing-mode:horizontal-tb;font-size:clamp(36px,8vw,60px);}
+  .manifesto-mark-cap{writing-mode:horizontal-tb;transform:none;}
+  .manifesto-foot{grid-template-columns:1fr;gap:48px;padding-top:40px;}
+  .manifesto-meta{grid-template-columns:repeat(2,1fr);gap:20px;}
+}
+
+/* 三空间循环大图 */
+.cycle{position:relative;padding:60px 40px 90px;}
+.cycle-frame{max-width:1120px;margin:0 auto;border:var(--edge);background:var(--c-panel);border-radius:4px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.cycle-frame .imgbox{position:relative;}
+.cycle-frame img{width:100%;display:block;}
+.cycle-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--c-line);max-width:1120px;margin:20px auto 0;}
+.cycle-legend .cl{padding:16px 20px;background:var(--c-panel);}
+.cycle-legend .cl b{display:block;font-size:13px;letter-spacing:.1em;margin-bottom:2px;}
+.cycle-legend .cl small{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;color:var(--c-dim);}
+.cycle-legend .cl:nth-child(1) b{color:var(--c-habitat);}
+.cycle-legend .cl:nth-child(2) b{color:var(--c-stellaris);}
+.cycle-legend .cl:nth-child(3) b{color:var(--c-rift);}
+
+/* 通用通用容器 */
+.wrap{max-width:1320px;margin:0 auto;padding:0 40px;}
+
+/* 三空间卡（设定入口）*/
+.spaces{padding:90px 0;}
+.spaces-grid{display:grid;grid-template-columns:1.15fr 1fr 1.15fr;gap:18px;}
+.space-card{
+  position:relative;border-radius:4px;overflow:hidden;min-height:420px;
+  display:flex;align-items:flex-end;cursor:pointer;transition:transform .4s;
+  border:1px solid var(--c-line);
+}
+.space-card:hover{transform:translateY(-6px);}
+.space-card .bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .8s;}
+.space-card:hover .bg{transform:scale(1.05);}
+.space-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(5,7,10,.9));}
+.space-card .body{position:relative;z-index:2;padding:26px;width:100%;}
+.space-card .badge{font-family:var(--font-mono);font-size:9px;letter-spacing:.3em;text-transform:uppercase;display:inline-block;padding:4px 10px;border-radius:2px;margin-bottom:12px;}
+.space-card h3{font-family:var(--font-cn);font-size:24px;font-weight:500;letter-spacing:.12em;color:#fff;margin-bottom:8px;}
+.space-card .en{font-family:var(--font-en);font-size:11px;color:var(--c-alloy);letter-spacing:.3em;text-transform:uppercase;margin-bottom:10px;}
+.space-card p{font-size:13px;color:#b9c5cb;max-width:36ch;}
+.space-card[data-k="habitat"] .badge{background:rgba(112,217,138,.14);color:var(--c-habitat);}
+.space-card[data-k="stellaris"] .badge{background:rgba(98,217,255,.14);color:var(--c-stellaris);}
+.space-card[data-k="rift"] .badge{background:rgba(154,107,255,.16);color:var(--c-rift);}
+.space-card[data-k="habitat"]:hover{border-color:rgba(112,217,138,.5);box-shadow:0 20px 60px rgba(112,217,138,.12);}
+.space-card[data-k="stellaris"]:hover{border-color:rgba(98,217,255,.5);box-shadow:0 20px 60px rgba(98,217,255,.12);}
+.space-card[data-k="rift"]:hover{border-color:rgba(154,107,255,.5);box-shadow:0 20px 60px rgba(154,107,255,.14);}
+
+/* 玩法循环（主页资源链）*/
+.flow{padding:60px 0 90px;}
+.flow-chain{display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr 28px 1fr 28px 1fr 28px 1fr 28px 1fr;gap:6px;align-items:stretch;max-width:1200px;margin:0 auto;}
+.flow-node{text-align:center;padding:22px 10px;border:1px solid var(--c-line);background:var(--c-panel);border-radius:4px;position:relative;transition:all .3s;display:flex;flex-direction:column;justify-content:flex-start;min-width:0;}
+.flow-node:hover{border-color:var(--c-stellaris);transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,.4);}
+.flow-node .n{font-family:var(--font-en);font-size:10px;color:var(--c-dim);letter-spacing:.3em;margin-top:6px;}
+.flow-node .t{font-size:12.5px;color:var(--c-cool-white);letter-spacing:.06em;margin-top:8px;line-height:1.45;}
+.flow-node .ic{width:30px;height:30px;color:var(--c-stellaris);margin:0 auto;display:block;opacity:.9;}
+.flow-node .ic svg{width:100%;height:100%;}
+.flow-node:hover{border-color:var(--c-stellaris);transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,.4);}
+.flow-arrow{display:flex;align-items:center;justify-content:center;color:var(--c-stellaris);font-size:16px;opacity:.6;}
+.flow-arrow svg{width:22px;height:10px;}
+
+/* 生态舱模块 / 主舰区域 用不对称卡区 */
+.mod-section{padding:40px 0 90px;}
+.big-split{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;}
+.big-split .media{border:var(--edge);border-radius:4px;overflow:hidden;position:relative;}
+.big-split .media img{width:100%;display:block;}
+.big-split .media .cap{position:absolute;left:14px;bottom:14px;font-family:var(--font-mono);font-size:9px;color:var(--c-cool-white);background:rgba(7,9,12,.7);padding:4px 10px;letter-spacing:.2em;border:1px solid rgba(160,190,205,.15);}
+.modlist{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px;}
+.moditem{background:var(--c-panel);border:1px solid var(--c-line);border-radius:4px;padding:16px;transition:all .3s;}
+.moditem:hover{border-color:var(--c-line2);transform:translateY(-2px);}
+.moditem .m-ic{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:16px;}
+.moditem .m-ic svg{width:19px;height:19px;}
+.moditem h4{font-size:14px;color:var(--c-cool-white);letter-spacing:.06em;font-weight:500;}
+.moditem .en{font-family:var(--font-mono);font-size:9px;color:var(--c-dim);letter-spacing:.2em;margin:3px 0 6px;}
+.moditem p{font-size:12px;color:#9aaab3;line-height:1.6;}
+
+/* 裂隙副本 */
+.rift-section{padding:30px 0 90px;}
+.rift-big{position:relative;border-radius:4px;overflow:hidden;border:var(--edge);margin-bottom:26px;}
+.rift-big img{width:100%;display:block;}
+.rift-big::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,9,12,.85),transparent 50%);}
+.rift-big .txt{position:absolute;left:0;top:0;bottom:0;width:52%;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:40px;}
+.rift-big .txt .tag{font-family:var(--font-mono);font-size:9px;letter-spacing:.3em;color:var(--c-rift);text-transform:uppercase;margin-bottom:12px;}
+.rift-big .txt h3{font-size:clamp(24px,3vw,36px);font-weight:300;color:#fff;letter-spacing:.1em;}
+.rift-big .txt p{color:#c3cad0;font-size:14px;margin-top:12px;max-width:44ch;}
+
+/* 视觉色板 */
+.visual-section{padding:40px 0 90px;}
+.swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:30px;}
+.swatch{border-radius:4px;overflow:hidden;border:1px solid var(--c-line);background:var(--c-panel);transition:transform .25s,border-color .25s;}
+.swatch:hover{transform:translateY(-3px);border-color:var(--c-line2);}
+.swatch .chip{height:72px;position:relative;overflow:hidden;}
+/* 打破"纯平色块"：加材质层次——上方高光、右角光泽切割 */
+.swatch .chip::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0) 34%,rgba(0,0,0,0) 62%,rgba(0,0,0,.2));}
+.swatch .chip::after{content:'';position:absolute;left:0;right:0;top:0;height:72px;background:
+  repeating-linear-gradient(135deg,transparent 0 10px,rgba(255,255,255,.05) 10px 11px),
+  linear-gradient(200deg,transparent 0 40%,rgba(0,0,0,.12) 40% 42%,transparent 42%);opacity:.5;}
+/* 色块右上角系统编码 */
+.swatch .chip .cno{position:absolute;top:6px;right:8px;font-family:var(--font-en);font-size:8px;letter-spacing:.15em;color:rgba(255,255,255,.55);mix-blend-mode:overlay;}
+.swatch .chip .dot{position:absolute;left:10px;bottom:8px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);box-shadow:0 0 6px rgba(255,255,255,.6);}
+.swatch .info{padding:10px 12px;display:flex;align-items:baseline;justify-content:space-between;gap:6px;}
+.swatch .info .hex{font-family:var(--font-mono);font-size:10px;color:var(--c-cool-white);}
+.swatch .info .role{font-family:var(--font-cn);font-size:10px;color:var(--c-dim);margin-top:2px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* 状态色（橙/红）加警示语义：底部斜纹 */
+.swatch.is-warn .chip::after{opacity:.9;background:
+  repeating-linear-gradient(135deg,transparent 0 8px,rgba(0,0,0,.22) 8px 9px);}
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--c-line);border:1px solid var(--c-line);border-radius:4px;overflow:hidden;margin-top:34px;}
+.pillar{background:var(--c-panel);padding:20px;}
+.pillar .no{font-family:var(--font-mono);font-size:10px;color:var(--c-stellaris);letter-spacing:.2em;}
+.pillar h4{font-size:14px;color:var(--c-cool-white);letter-spacing:.06em;margin:6px 0 6px;}
+.pillar p{font-size:12px;color:#a4b3bb;line-height:1.75;}
+
+/* 开发路线 */
+.road{padding:60px 0 90px;}
+.timeline{position:relative;max-width:1000px;margin:30px auto 0;padding-left:30px;}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--c-stellaris),rgba(98,217,255,.25),transparent);}
+.tl-item{position:relative;padding:0 0 40px 40px;}
+.tl-item::before{content:'';position:absolute;left:2px;top:6px;width:13px;height:13px;border-radius:50%;background:var(--c-deep);border:2px solid var(--c-stellaris);box-shadow:0 0 0 4px rgba(98,217,255,.08);}
+.tl-item:last-child::before{background:var(--c-stellaris);box-shadow:0 0 12px rgba(98,217,255,.7);}
+.tl-item .phase{font-family:var(--font-mono);font-size:10px;color:var(--c-stellaris);letter-spacing:.2em;}
+.tl-item h4{font-size:18px;color:var(--c-cool-white);font-weight:500;letter-spacing:.05em;margin:4px 0 6px;}
+.tl-item p{font-size:13px;color:#a4b3bb;line-height:1.85;max-width:60ch;}
+.tl-item .tagline{display:inline-block;margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--c-gold);letter-spacing:.15em;border:1px solid rgba(216,180,91,.3);padding:3px 10px;border-radius:2px;}
+
+/* 图鉴预告 strip */
+.archive-strip{padding:30px 0 120px;}
+.strip-row{display:grid;grid-template-columns:1.4fr .6fr;gap:30px;align-items:center;border-top:1px solid var(--c-line);padding-top:40px;}
+.strip-row h3{font-family:var(--font-en);font-size:clamp(24px,3.4vw,40px);font-weight:300;color:var(--c-cool-white);letter-spacing:.02em;}
+.strip-row h3 em{font-style:normal;color:var(--c-rift);}
+.strip-row p{color:var(--c-dim);margin-top:12px;font-size:14px;}
+
+/* footer */
+footer{border-top:1px solid var(--c-line);padding:46px 40px;background:var(--c-deep);}
+.foot-grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:30px;align-items:start;}
+.foot-brand img{height:34px;}
+.foot-brand .name{font-family:var(--font-en);letter-spacing:.2em;margin-top:10px;color:var(--c-cool-white);}
+.foot-brand .name b{color:var(--c-stellaris);}
+.foot-brand p{color:var(--c-dim);font-size:12px;margin-top:6px;max-width:34ch;}
+.foot-col h5{font-family:var(--font-en);font-size:11px;color:var(--c-mute);letter-spacing:.3em;text-transform:uppercase;margin-bottom:16px;}
+.foot-col a{display:block;color:var(--c-alloy);font-size:13px;padding:4px 0;transition:color .2s;}
+.foot-col a:hover{color:var(--c-stellaris);}
+.foot-copy{max-width:1320px;margin:30px auto 0;padding-top:24px;border-top:1px solid var(--c-line);display:flex;justify-content:space-between;align-items:center;color:var(--c-mute);font-size:11px;}
+.foot-copy .mono{font-family:var(--font-mono);letter-spacing:.2em;}
+
+/* ============ Wiki 世界观视图 ============ */
+#view-wiki{min-height:100vh;}
+.wiki-wrap{display:grid;grid-template-columns:280px 1fr;min-height:100vh;}
+.w-side{
+  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#0a0e13,#07090c);
+  border-right:1px solid var(--c-line);z-index:20;
+  padding-top:64px;
+}
+.w-side-hd{padding:14px 22px 16px;border-bottom:var(--edge);}
+.w-side-logo{font-family:var(--font-en);font-size:18px;font-weight:700;letter-spacing:.16em;color:var(--c-cool-white);}
+.w-side-logo b{color:var(--c-stellaris);}
+.w-side-sub{font-family:var(--font-mono);font-size:9px;color:var(--c-mute);letter-spacing:.34em;margin-top:6px;}
+.w-side .w-nav{flex:1;overflow-y:auto;padding:14px 10px;}
+.w-grp{font-family:var(--font-mono);font-size:9px;color:var(--c-mute);letter-spacing:.3em;padding:14px 12px 6px;text-transform:uppercase;}
+.w-nav-btn,.w-nav .w-nav-btn{display:none;}
+.w-nav{width:100%;}
+button.w-nav{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:transparent;border:0;cursor:pointer;text-align:left;
+  color:var(--c-alloy);font-family:var(--font-cn);font-size:13px;
+  padding:8px 12px;border-radius:4px;transition:all .18s;letter-spacing:.02em;
+}
+button.w-nav .wn-no{font-family:var(--font-mono);font-size:9px;color:var(--c-mute);min-width:22px;letter-spacing:.05em;}
+button.w-nav:hover{background:rgba(160,190,205,.06);color:var(--c-cool-white);}
+button.w-nav.on{background:rgba(98,217,255,.09);color:var(--c-stellaris);}
+button.w-nav.on .wn-no{color:var(--c-stellaris);}
+.w-side-ft{padding:14px;border-top:var(--edge);}
+.btn-sm{padding:9px 16px;font-size:10px;}
+
+.w-main{position:relative;height:100vh;overflow-y:auto;}
+.w-progress{position:sticky;top:0;left:0;height:2px;background:transparent;z-index:30;}
+.w-progress #wProgBar{width:0;height:100%;background:linear-gradient(90deg,var(--c-stellaris),var(--c-rift));box-shadow:0 0 12px rgba(98,217,255,.6);}
+.w-content{max-width:860px;margin:0 auto;padding:60px 46px 120px;}
+
+.w-hero{position:relative;border-radius:10px;overflow:hidden;border:var(--edge);margin-bottom:34px;background:var(--c-panel);}
+.w-hero-img{position:absolute;inset:0;background:url('img/06-three-worlds-cycle.png') center 30%/cover no-repeat;opacity:.3;}
+.w-hero-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,9,12,.5),var(--c-panel));}
+.w-hero-body{position:relative;padding:44px 40px;}
+.w-hero-tag{font-family:var(--font-mono);font-size:9px;letter-spacing:.3em;color:var(--c-stellaris);text-transform:uppercase;opacity:.9;}
+.w-hero-body h1{font-family:var(--font-en);font-size:clamp(30px,5vw,56px);font-weight:300;color:#fff;margin-top:14px;letter-spacing:.02em;}
+.w-hero-en{font-family:var(--font-mono);font-size:11px;color:var(--c-dim);letter-spacing:.3em;margin-top:8px;}
+.w-hero-quote{font-size:16px;color:#cdd7da;margin-top:20px;line-height:1.9;border-left:2px solid var(--c-stellaris);padding-left:16px;}
+.w-hero-meta{display:flex;gap:22px;margin-top:26px;font-family:var(--font-mono);font-size:9px;color:var(--c-mute);letter-spacing:.15em;flex-wrap:wrap;}
+
+.w-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px;}
+/* 移动端章节导航条：默认隐藏，<=760px 显示并 sticky 于 wiki 顶部 */
+.w-mobnav{display:none;gap:8px;overflow-x:auto;margin:-8px -20px 22px;padding:6px 20px 10px;position:sticky;top:56px;z-index:30;background:rgba(8,11,15,.94);border-bottom:1px solid var(--c-line);-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.w-mobnav::-webkit-scrollbar{display:none;}
+.wm-chip{flex:none;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid var(--c-line);border-radius:20px;background:var(--c-panel);color:var(--c-alloy);font-size:12px;white-space:nowrap;cursor:pointer;transition:all .2s;}
+.wm-chip span{font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.04em;}
+.wm-chip:hover{border-color:var(--c-line2);color:var(--c-cool-white);}
+.wm-chip.on{border-color:var(--c-stellaris);color:var(--c-stellaris);background:rgba(98,217,255,.07);}
+.wq-card{background:var(--c-panel);border:var(--edge);border-radius:8px;padding:18px;cursor:pointer;text-align:left;transition:all .25s;}
+.wq-card:hover{transform:translateY(-3px);border-color:var(--c-line2);box-shadow:0 12px 30px rgba(0,0,0,.4);}
+.wq-ic{width:38px;height:38px;border-radius:8px;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px;}
+.wq-ic svg{width:20px;height:20px;}
+.wq-t{font-size:14px;color:var(--c-cool-white);font-weight:500;letter-spacing:.04em;}
+.wq-s{font-family:var(--font-mono);font-size:8px;color:var(--c-dim);letter-spacing:.2em;margin:4px 0 6px;text-transform:uppercase;}
+.wq-d{font-size:11px;color:#8fa0aa;line-height:1.5;}
+
+.w-sec{margin-bottom:44px;scroll-margin-top:40px;}
+.w-sec-hd{display:flex;gap:20px;align-items:flex-start;padding-bottom:18px;border-bottom:var(--edge);margin-bottom:26px;}
+.w-no{font-family:var(--font-en);font-size:15px;font-weight:700;padding-top:2px;min-width:34px;}
+.w-en{font-family:var(--font-mono);font-size:9px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:6px;}
+.w-sec-hd h2{font-size:clamp(22px,2.6vw,30px);font-weight:500;color:var(--c-cool-white);letter-spacing:.04em;}
+.w-blocks>*{margin-bottom:18px;}
+.w-b-p{font-size:15px;color:#c2ccd1;line-height:2;}
+.w-b-p.lead{font-size:17px;color:#d9e2e5;}
+.w-b-h{font-size:18px;color:var(--c-cool-white);font-weight:500;letter-spacing:.05em;margin:26px 0 14px !important;padding-left:12px;border-left:3px solid var(--c-gun);}
+.w-b-q{position:relative;font-size:15px;color:#e4ecee;background:rgba(98,217,255,.04);border-left:2px solid var(--c-stellaris);padding:16px 20px;border-radius:0 6px 6px 0;font-style:normal;line-height:1.9;}
+.w-b-em{display:flex;gap:14px;align-items:flex-start;background:rgba(154,107,255,.06);border:1px solid rgba(154,107,255,.15);border-radius:6px;padding:18px 20px;font-size:16px;color:#e6deff;font-weight:500;line-height:1.9;}
+.w-b-em .em-bar{width:3px;align-self:stretch;border-radius:2px;flex:none;}
+.w-b-slogan{text-align:center;font-size:clamp(18px,2.6vw,26px);font-weight:500;letter-spacing:.1em;color:var(--c-gold);padding:26px 0;border-top:var(--edge);border-bottom:var(--edge);margin:30px 0 !important;}
+.w-b-ul{list-style:none;padding:0;}
+.w-b-ul li{position:relative;padding:6px 0 6px 22px;color:#c6d0d5;font-size:14.5px;line-height:1.8;}
+.w-b-ul .dot{position:absolute;left:0;top:16px;width:6px;height:6px;border-radius:50%;}
+.w-b-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.wb-card{background:var(--c-panel);border:var(--edge);border-radius:8px;padding:20px;text-align:center;transition:all .25s;}
+.wb-card:hover{border-color:var(--c-line2);transform:translateY(-3px);}
+.wb-ic{font-size:24px;margin-bottom:10px;display:flex;justify-content:center;}
+.wb-ic svg{width:26px;height:26px;}
+.wb-k{font-size:14px;color:var(--c-cool-white);font-weight:500;}
+.wb-v{font-size:12px;color:var(--c-dim);margin-top:6px;line-height:1.6;}
+.w-b-list3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.l3{background:var(--c-panel);border:var(--edge);border-radius:8px;padding:20px;position:relative;transition:all .25s;}
+.l3:hover{border-color:var(--c-line2);transform:translateY(-3px);}
+.l3-n{position:absolute;top:14px;right:16px;font-family:var(--font-en);font-size:28px;font-weight:700;color:rgba(220,231,232,.05);}
+.l3-ic{font-size:22px;margin-bottom:8px;display:flex;justify-content:center;}
+.l3-ic svg{width:24px;height:24px;}
+.l3-en{font-family:var(--font-mono);font-size:8px;letter-spacing:.2em;color:var(--c-dim);text-transform:uppercase;}
+.l3-t{font-size:14px;color:var(--c-cool-white);font-weight:500;margin:8px 0 4px;}
+.l3-s{font-size:11px;color:#8fa0aa;line-height:1.5;}
+.w-b-flow{background:var(--c-panel);border:var(--edge);border-radius:8px;overflow:hidden;}
+.wf-row{display:flex;align-items:center;gap:16px;padding:0 22px;min-height:56px;border-bottom:1px solid rgba(160,190,205,.06);}
+.wf-row:last-child{border-bottom:0;}
+.wf-no{font-family:var(--font-en);font-size:13px;color:var(--c-stellaris);font-weight:500;}
+.wf-t{font-size:14px;color:var(--c-cool-white);}
+.wf-arrow{color:var(--c-mute);font-size:11px;margin-left:auto;}
+.w-b-table{overflow-x:auto;border:var(--edge);border-radius:8px;}
+.w-b-table table{width:100%;border-collapse:collapse;font-size:13px;}
+.w-b-table th{font-family:var(--font-cn);background:var(--c-panel2);color:var(--c-cool-white);font-weight:500;padding:11px 14px;text-align:left;letter-spacing:.04em;white-space:nowrap;}
+.w-b-table td{padding:10px 14px;color:#c2ccd1;border-top:1px solid rgba(160,190,205,.07);}
+.w-b-table td:first-child{color:var(--c-cool-white);white-space:nowrap;}
+.w-b-table tr:hover td{background:rgba(98,217,255,.03);}
+
+/* ============ Codex 图鉴视图 ============ */
+#view-codex{min-height:100vh;}
+.cx-hero{position:relative;overflow:hidden;}
+.cx-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(700px 400px at 75% 0%,rgba(154,107,255,.08),transparent 60%);}
+.cx-wrap{max-width:1280px;margin:0 auto;padding:10px 34px 120px;}
+.cx-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:var(--edge);padding:18px 0;flex-wrap:wrap;}
+.cx-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+.cx-tab{display:inline-flex;align-items:center;gap:8px;background:transparent;border:var(--edge);color:var(--c-alloy);cursor:pointer;font-family:var(--font-cn);font-size:13px;padding:9px 16px;border-radius:4px;transition:all .2s;letter-spacing:.03em;}
+.cx-tab:hover{color:var(--c-cool-white);border-color:var(--c-line2);}
+.cx-tab.on{background:rgba(98,217,255,.08);border-color:var(--c-stellaris);color:var(--c-stellaris);}
+.cx-tab .cn{font-family:var(--font-mono);font-size:8px;color:var(--c-mute);letter-spacing:.15em;}
+.cx-tab > span:first-child{display:inline-flex;align-items:center;}
+.cx-tab > span:first-child svg{width:15px;height:15px;}
+.cx-count{font-family:var(--font-mono);font-size:10px;color:var(--c-mute);letter-spacing:.15em;}
+.cx-body{margin-top:8px;}
+.cx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.cx-card{position:relative;border-radius:8px;overflow:hidden;border:var(--edge);min-height:250px;display:flex;flex-direction:column;cursor:pointer;background:var(--c-panel);transition:all .3s;perspective:900px;}
+.cx-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 0 1px var(--ac);}
+.cx-card.sel{box-shadow:0 0 0 1.5px var(--ac),0 0 26px -4px var(--ac);}
+.cx-card.sel .cx-info h3{color:var(--ac);}
+.cx-card.wide{grid-column:span 2;grid-row:span 2;min-height:330px;}
+.cx-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .6s;}
+.cx-card:hover .cx-bg{transform:scale(1.06);}
+.cx-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,7,10,.15) 30%,rgba(5,7,10,.92) 78%);}
+.cx-picph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;font-family:var(--font-en);font-weight:700;opacity:.14;letter-spacing:.1em;}
+.cx-tagrow{position:relative;z-index:2;display:flex;gap:8px;padding:14px 16px 0;}
+.cx-rar{font-family:var(--font-mono);font-size:8px;letter-spacing:.16em;border:1px solid;padding:2px 8px;border-radius:2px;}
+.cx-cat{font-family:var(--font-mono);font-size:8px;color:var(--c-mute);letter-spacing:.16em;padding:2px 0;}
+.cx-info{position:relative;z-index:2;margin-top:auto;padding:10px 16px 4px;}
+.cx-en{font-family:var(--font-mono);font-size:8px;color:var(--ac);letter-spacing:.2em;text-transform:uppercase;opacity:.85;}
+.cx-info h3{font-size:18px;color:#fff;font-weight:500;letter-spacing:.04em;margin:4px 0 6px;font-family:var(--font-cn);}
+.cx-info p{font-size:12px;color:#b6c2c8;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.cx-ft{position:relative;z-index:2;padding:10px 16px 14px;}
+.cx-tag{font-size:10px;color:var(--ac);border:1px solid color-mix(in srgb,var(--ac) 40%,transparent);padding:2px 8px;border-radius:2px;letter-spacing:.1em;font-family:var(--font-cn);}
+.cx-empty{grid-column:1/-1;text-align:center;color:var(--c-mute);padding:80px 0;font-family:var(--font-mono);letter-spacing:.2em;font-size:12px;}
+
+/* ---------- 响应式 ---------- */
+@media(max-width:1100px){
+  .swatches{grid-template-columns:repeat(3,1fr);}
+  .w-quick{grid-template-columns:repeat(2,1fr);}
+  .cx-grid{grid-template-columns:repeat(2,1fr);}
+  .manifesto-inner{grid-template-columns:1fr;}
+  .big-split{grid-template-columns:1fr;}
+  .spaces-grid{grid-template-columns:1fr;}
+  .w-b-cards,.w-b-list3{grid-template-columns:1fr;}
+  .strip-row{grid-template-columns:1fr;}
+  .flow-chain{grid-template-columns:1fr;gap:8px;}
+  .flow-arrow{transform:rotate(90deg);}
+}
+@media(max-width:760px){
+  .wiki-wrap{grid-template-columns:1fr;}
+  .w-side{position:relative;height:auto;border-right:0;border-bottom:var(--edge);}
+  .w-side .w-nav{display:none;}
+  .w-side-ft{display:none;}
+  .w-main{height:auto;overflow:visible;}
+  .w-content{padding:30px 20px 80px;}
+  .cx-grid{grid-template-columns:1fr;}
+  .cx-card.wide{grid-column:span 1;}
+  #topbar{padding:10px 16px;}
+  .top-nav .nav-btn .cn{display:none;}
+  .menu-btn{display:flex;margin-left:2px;}
+  /* 汉堡菜单展开面板 */
+  .top-nav{display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;
+    width:min(78vw,300px);padding:88px 20px 24px;z-index:99;
+    background:rgba(8,11,15,.97);border-left:1px solid var(--c-line);
+    transform:translateX(102%);transition:transform .38s cubic-bezier(.2,.8,.25,1);
+    box-shadow:-20px 0 60px rgba(0,0,0,.5);}
+  body.nav-open .top-nav{transform:translateX(0);}
+  body.nav-open .top-nav .nav-btn{width:100%;text-align:left;padding:14px 6px;
+    font-size:16px;border-bottom:1px solid var(--c-line);letter-spacing:.1em;}
+  body.nav-open .top-nav .nav-btn .cn{display:inline;margin-left:10px;color:var(--c-dim);}
+  body.nav-open .top-nav .nav-btn.active{color:var(--c-stellaris);}
+  body.nav-open .nav-veil{opacity:1;pointer-events:auto;}
+  .foot-grid{grid-template-columns:1fr;}
+  #player{right:12px;bottom:12px;width:calc(100vw - 24px);max-width:340px;}
+  .w-quick{grid-template-columns:1fr;}
+  .w-mobnav{display:flex;}
+  .hero-title{font-size:clamp(44px,16vw,80px);}
+}
+
+</style>
+</head>
+<body data-page-node-id="oRaMFdUvwAGOtLmhU41Iit">
+
+<!-- 背景特效层 -->
+<div id="nebula" data-page-node-id="dRFlAQyrQhSpJI0cBHPglf"></div>
+<canvas id="fx-canvas" data-page-node-id="s4B9WzmHLqozW0MPaPYkZm"></canvas>
+<div id="scanlines" data-page-node-id="7EWcuFuqT1XC8QLPxylEhh"></div>
+
+<div id="app" data-page-node-id="bIEVf5fE9JARNUnqyWLtG4">
+  <!-- ======= 顶栏 ======= -->
+  <header id="topbar" data-page-node-id="NlNw5BGTVd8QC5LH5gfW5e">
+    <div class="top-brand" data-view="home" data-page-node-id="rEFo3ywIASgM4jIgaw2eUX">
+      <img src="img/favicon.png" alt="STELLARIS" data-page-node-id="HprAf5yLH3EOHFAs4PoC1M" />
+      <div data-page-node-id="GPWl4DOxhyNrGbz1bZJFQn">
+        <div class="name" data-page-node-id="HfEa3o3jG9hV6VQ1PHl9v8">STELLAR<b data-page-node-id="KQqBJ99x9vcEBI3OqOhpwM">IS</b> <span style="opacity:.5" data-page-node-id="ZrK49fTvASl1AklxfEaEbz">//</span> 星郡</div>
+        <div class="sub" data-page-node-id="OkosTXtNstyGPWIaJr3bu3">DEEP·FIELD·ARCHIVE</div>
+      </div>
+    </div>
+    <nav class="top-nav" data-page-node-id="pInTOSBM4w28pqi9H8LjWE">
+      <button class="nav-btn active" data-view="home" data-page-node-id="mDnjQHr4GGQtbYXDb5NCCU">HOME<span class="cn" data-page-node-id="BPyqu2MwbiwOq98iW2L1Ir">首页</span></button>
+      <button class="nav-btn" data-view="wiki" data-page-node-id="p0CZ7MJ1u82ohpPRmPL3JB">WORLDVIEW<span class="cn" data-page-node-id="ekUsNhxZYfFirY52pyZ9EZ">世界观档案</span></button>
+      <button class="nav-btn" data-view="codex" data-page-node-id="rRcR6ixVs2VQ7tjCvw9QmR">CODEX<span class="cn" data-page-node-id="Z9ujyN3Q8vyNslWZ6LjiIf">设定图鉴</span></button>
+    </nav>
+    <div class="top-right" data-page-node-id="fdlp0xWpAXacg7s5aa425f">
+      <button class="menu-btn" id="menuToggle" aria-label="菜单" title="菜单" data-page-node-id="MEbVdNzZkr8P2ms3mAmCdD"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <button class="icon-btn" id="fxToggle" title="粒子特效开关" data-page-node-id="MEbVdNzZkr8P2ms3mAmCdD">◈</button>
+      <button class="icon-btn" id="playerToggle" title="音乐播放器" data-page-node-id="80A0ahGM59EQ5ZsSfiLRIl">♪</button>
+    </div>
+  </header>
+  <div class="nav-veil" id="navVeil" data-page-node-id="vP3Hamburger0"></div>
+
+  <!-- ======= 视图一：首页 ======= -->
+  <main class="view active" id="view-home" data-page-node-id="QQn7rWacWmMywhVVMBPXUc">
+    <section class="hero" data-page-node-id="F1DlS06mSKAPQFr9h345Cm">
+      <div class="hero-bg" data-page-node-id="xNHGsYsIuDDolU8zkmOyE3"></div>
+      <div class="hero-content" data-page-node-id="Gw3TpY5DLlzQBE7HSQg8nu">
+        <div class="hero-eyebrow" data-page-node-id="C08vo1HM93qDgF8p2HTy9O">ARCHIVE <span data-page-node-id="JEgApWXJ0nCri6F4UD4OhF">v2.0</span> // 断航日后 · 文明重建计划</div>
+        <h1 class="hero-title" data-page-node-id="wSRkjldCQWgNjYtLhxhF6E">STELLARIS<small data-page-node-id="8h9OOrHDL4nyVJ7ocD6NE0">代号 · 星郡</small></h1>
+        <p class="hero-zh" data-page-node-id="jk96jbmtpF72MPM4AuHn9Z">从一座生态舱开始，重建一片星海</p>
+        <div class="hero-cta" data-page-node-id="P186mdP0HresVF9xOzTIuz">
+          <button class="btn btn-primary" data-goto="wiki" data-page-node-id="nDmu3f5dBKBpzw0CxK6v4U">进入世界观档案 <span class="arr" data-page-node-id="aNxapwrXkYeEiQkW8WVA9X">→</span></button>
+          <button class="btn btn-ghost" data-goto="codex" data-page-node-id="wTiUiWJSJJWgXMA1X5O72s">浏览设定图鉴</button>
+        </div>
+      </div>
+      <div class="hero-scroll" data-scroll-to="manifesto" data-page-node-id="4mgdDxNHF7FGu93rpxeGpG"><span data-page-node-id="RiGsaeiR6KOeNYTr9iJx2R">SCROLL</span><div class="line" data-page-node-id="l2oIjGwevsPqiTfRv9ZpT1"></div></div>
+    </section>
+
+    <!-- 宣言 -->
+    <section class="manifesto" id="manifesto" data-page-node-id="w1vRCzdmZ3zbJAB18sVGBO">
+
+      <!-- 第1行：顶部小标识 -->
+      <div class="manifesto-top" data-page-node-id="mTop01">
+        <div class="manifesto-top-l">
+          <span class="num" data-page-node-id="mNum01">01 / 04</span>
+          <span class="label" data-page-node-id="mLab01">Worldview · Manifest</span>
+        </div>
+        <div class="manifesto-top-r" data-page-node-id="mTopR01">A Letter From The Drift</div>
+      </div>
+
+      <!-- 第2行：超大引述 -->
+      <p class="manifesto-quote" data-page-node-id="mQuote01">
+        我们漂泊在<em data-page-node-id="mQE01">破碎的星域</em>，为文明寻找<strong data-page-node-id="mQS01">下一片可以靠岸的星空</strong>。
+      </p>
+
+      <!-- 第3行：左正文 + 右铭牌 -->
+      <div class="manifesto-body" data-page-node-id="mBody01">
+        <div class="manifesto-cn" data-page-node-id="mCn01">
+          <p data-page-node-id="mCnP01">星海航路崩塌后，最后的幸存者乘坐方舟主舰 <b data-page-node-id="mCnB01">STELLARIS</b>，漂泊于破碎星域。</p>
+          <p data-page-node-id="mCnP02">经营你的 <b class="hl2" data-page-node-id="mCnB02">生态舱</b>，穿越 <b class="hl3" data-page-node-id="mCnB03">空间裂隙</b>，为主舰寻找 <b data-page-node-id="mCnB04">延续文明的资源</b> 与新家园。</p>
+          <p data-page-node-id="mCnP03">这不是一场远征，而是一段被妥善安放的<strong>时间</strong>。每个玩家都是开拓者，每座舱体都是文明的火种。</p>
+        </div>
+        <div class="manifesto-mark" data-page-node-id="mMark01">
+          <div class="manifesto-mark-stack" aria-hidden="true" data-page-node-id="mMkStk01">S<span data-page-node-id="mMkS01">T</span><span data-page-node-id="mMkS02">E</span>LLARIS</div>
+          <div class="manifesto-mark-cap" data-page-node-id="mMkCap01">EST · 2137 · DEEP FIELD</div>
+        </div>
+      </div>
+
+      <!-- 第4行：金色主句 + 元信息 -->
+      <div class="manifesto-foot" data-page-node-id="mFoot01">
+        <p class="manifesto-lead" data-page-node-id="mLead01">在核心熄灭之前，为文明找到下一片星空。</p>
+        <div class="manifesto-meta" data-page-node-id="mMeta01">
+          <div data-page-node-id="mMetaC01"><div class="k" data-page-node-id="mMetaK01">CORE · 身份</div><div class="v" data-page-node-id="mMetaV01">开拓者<span class="sub" data-page-node-id="mMetaSub01">Pioneer</span></div></div>
+          <div data-page-node-id="mMetaC02"><div class="k" data-page-node-id="mMetaK02">ARK · 主舰</div><div class="v" data-page-node-id="mMetaV02">STELLARIS<span class="sub" data-page-node-id="mMetaSub02">方舟主舰</span></div></div>
+          <div data-page-node-id="mMetaC03"><div class="k" data-page-node-id="mMetaK03">BREAK · 事件</div><div class="v" data-page-node-id="mMetaV03">断航日<span class="sub" data-page-node-id="mMetaSub03">Day of Severance</span></div></div>
+          <div data-page-node-id="mMetaC04"><div class="k" data-page-node-id="mMetaK04">CRISIS · 危机</div><div class="v" data-page-node-id="mMetaV04">能源衰减<span class="sub" data-page-node-id="mMetaSub04">Core Decay</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 三大空间循环 -->
+    <section class="cycle" id="cycle" data-page-node-id="zTYAMXyPFxJtkt9GSTGcYy">
+      <div class="section-head" style="padding-top:0;" data-page-node-id="qh3EduYadZiEfnPZZ05S8d">
+        <div class="tag" data-page-node-id="GjFpHQg11dyIQMgmlv8k86">THREE WORLDS / 核心循环</div>
+        <h2 data-page-node-id="qHmi9JBdZNCS2gfcHGBTGl">生产 · 归属 · <em data-page-node-id="QaqWase1R1mrnWlm7jVvnF">远征</em></h2>
+        <div class="sub" data-page-node-id="HAWOt2DchdqbIypvahuNI4">生态舱负责生产与建设，STELLARIS 负责任务与共同进度，空间裂隙负责探索、战斗和稀有资源。三者构成完整的生存循环。</div>
+      </div>
+      <div class="cycle-frame" data-page-node-id="YwCcCsXWPwueCLPFBQkKvf"><div class="imgbox" data-page-node-id="8K5sv1PCuCdMPr6x1rfaYE"><img src="img/06-three-worlds-cycle.png" alt="三层世界循环" data-page-node-id="nRjNILroGnmeDK0rjTg1AC" /></div></div>
+      <div class="cycle-legend" data-page-node-id="nUf1Ya068KGfExwzgyKo1V">
+        <div class="cl" data-page-node-id="EE7oed0d3IRMwFcGiVpzHD"><b data-page-node-id="fvjYNpzn2YstmRUQIDimmA">独立生态舱</b><small data-page-node-id="WpWUxDjvRyvJY3Mcl2Y2kK">PRODUCE / 生产与建设</small></div>
+        <div class="cl" data-page-node-id="XHzDQHG9OsOpwSq3PCjDBf"><b data-page-node-id="ntwGtiGu2dMdzBYYO0xffu">方舟主舰 STELLARIS</b><small data-page-node-id="bBiPJX6JumMNIsQwzOEidK">BELONG / 任务与共同进度</small></div>
+        <div class="cl" data-page-node-id="oB9MmwzE7vBh4nas24DNHg"><b data-page-node-id="dymEGVeEYL8m1ydaVuD0LC">空间裂隙</b><small data-page-node-id="H0TQd8aUoOqK5UlKRvGV8J">EXPLORE / 探索与稀有资源</small></div>
+      </div>
+    </section>
+
+    <!-- 三大空间卡 -->
+    <section class="spaces" id="spaces" data-page-node-id="izxlHxNcR6xAtVv5TnJxWj">
+      <div class="wrap" data-page-node-id="i5lAp0lgGq6RoxIiWgfqlF">
+        <div class="section-head" style="padding:0 0 30px;" data-page-node-id="TgLwUSCRDliHGeg5KArrYp">
+          <div class="tag" data-page-node-id="SyLffRCVuiyeoXUU3LdR1v">SPATIAL LAYERS / 三大空间</div>
+          <h2 data-page-node-id="g2W3XYHGXHB9klze08XMwB">世界的 <em data-page-node-id="kWARTnjcHNCgywUeWFM50M">三层骨架</em></h2>
+        </div>
+        <div class="spaces-grid" data-page-node-id="zqUqpFfg7AqZDikkMJ5KqR">
+          <div class="space-card" data-k="habitat" data-view="wiki" data-ch="spod" data-page-node-id="PJ3wjfaVeXlHO6x6vxYHfb">
+            <div class="bg" style="background-image:url('img/03-habitat.png')" data-page-node-id="rA4XN94twMv3EE5SQzz6e6"></div>
+            <div class="body" data-page-node-id="UHfKqWmsLi8iKMEBbLCHfG">
+              <span class="badge" data-page-node-id="lylLdI45Xl12n66oG4KO1Q">LIFE / 生命</span>
+              <h3 data-page-node-id="kAPCwQoD4zkdx7MsGkKEZK">独立生态舱</h3>
+              <div class="en" data-page-node-id="7wKdRGtIRMwqsvr1iUyVuC">Your Home · Production</div>
+              <p data-page-node-id="KQxv67Fg58J50QgAMVtR8u">玩家空岛。既是住所，也是小型生产基地。从有限资源开始，恢复物质生产、农业循环与能源储备。</p>
+            </div>
+          </div>
+          <div class="space-card" data-k="stellaris" data-view="wiki" data-ch="spark" data-page-node-id="oHCLrHRLnA3zxbwbwpNkKy">
+            <div class="bg" style="background-image:url('img/01-stellaris-ship.png')" data-page-node-id="fKf768UIRtmuUA4uc3LD5D"></div>
+            <div class="body" data-page-node-id="SQvQP4XE0UILKE5Jvbvr0s">
+              <span class="badge" data-page-node-id="b5RJuRsfFbjUEPaItSo41k">ORDER / 秩序</span>
+              <h3 data-page-node-id="zyrFQOtAVYNFUMCKPhSq1G">方舟主舰</h3>
+              <div class="en" data-page-node-id="XQZA9JuYCfW0wCIaXcFX20">STELLARIS · The Ark</div>
+              <p data-page-node-id="KTNb3DvGppD7ARGlAxhACq">幸存者文明的中心。承担生存中心、公共中心与剧情中心三重职责，主舰进度即文明存续进度。</p>
+            </div>
+          </div>
+          <div class="space-card" data-k="rift" data-view="wiki" data-ch="srift" data-page-node-id="OF5E6h76FRwHFhgur2YQd5">
+            <div class="bg" style="background-image:url('img/04-wasteland.png')" data-page-node-id="D91iMsACJGmdJOHWCFsD0c"></div>
+            <div class="body" data-page-node-id="1Pu1pQYN6uc90DJKeYd5B2">
+              <span class="badge" data-page-node-id="JhvTIlhoyQgFDNWomHZhZp">UNKNOWN / 未知</span>
+              <h3 data-page-node-id="LR94FJyzF5JNAsqIbFCLBZ">空间裂隙</h3>
+              <div class="en" data-page-node-id="RMkNZWWgr6sIjq3SCHo7oe">Rift · The Unknown</div>
+              <p data-page-node-id="SpwrtpSB9PUmjH43M2sM6V">副本区域。通往失联星域，可能藏着异星文明、废弃殖民地与失控机械，是获取稀有资源的唯一途径。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 玩法循环链 -->
+    <section class="flow" id="flow" data-page-node-id="kRgXrfNe0UQrZgUCL10HY9">
+      <div class="wrap" data-page-node-id="Hmtca5DKY1MegVQEPJUhyw">
+        <div class="section-head" style="padding:0 0 40px;" data-page-node-id="QROQLqvqsYaAmaCia0cv8Q">
+          <div class="tag" data-page-node-id="Yd9sT3izfDvw7r7HPlLM6y">THE LOOP / 主线玩法循环</div>
+          <h2 data-page-node-id="TX27rEDlpb7iK7ItyldZye">一日星舰 <em data-page-node-id="e1ujT3MJFZMJ0TbFhiQy5B">运行日志</em></h2>
+        </div>
+        <div class="flow-chain" data-page-node-id="ovkQQJs3v741ZGsK80bM75">
+          <div class="flow-node" data-page-node-id="e37aEJDp2rQ0sv73UCHHEN"><span class="ic" data-page-node-id="RiIHQQvfTOTVaxuu1HcKNh">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="2Dddo2ZVtGyOpXBQUIbT40"><circle cx="12" cy="14" r="6" data-page-node-id="R0PklHfPHBOo0JUprlAQtI"/><path d="M12 8V2M8 2h8" data-page-node-id="LUF8IXOSUv4C4lvmSAuP9q"/></svg>
+          </span><div class="n" data-page-node-id="GqTRtOgBVsAdUElzy72bj0">01</div><div class="t" data-page-node-id="ItzHGX9ue280fw0372z0IQ">部署生态舱</div></div>
+          <div class="flow-arrow" data-page-node-id="t3YtZB1ChGJOro6Gke5Jn8"><svg viewBox="0 0 26 12" data-page-node-id="S0uptt0sTezR9piF5pDHr4"><path d="M1 6h22m0 0l-5-5m5 5l-5 5" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="jzuCxvYL97NEZOfw6XI7Zs"/></svg></div>
+          <div class="flow-node" data-page-node-id="y0TFuwGUh2S7qTTUt0Bv7u"><span class="ic" data-page-node-id="PHZpsKjjCpYYHocbQsVajD">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="lhGAOUbCfK4YKXf3ZucCAi"><circle cx="12" cy="12" r="3" data-page-node-id="iinCsp19F2b1hk0FrsKDRw"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" data-page-node-id="fSZRs3Xvcwn7LB7vqbVeDK"/></svg>
+          </span><div class="n" data-page-node-id="HegREDrRqvwYd29vNtfFKt">02</div><div class="t" data-page-node-id="IyV6DXxhE8dkS7GPLmnq6F">生产 · 建设家园</div></div>
+          <div class="flow-arrow" data-page-node-id="kf4gsHbXBnSlG3pYVGxWYP"><svg viewBox="0 0 26 12" data-page-node-id="fps8aIweYsel08UIUgxLBD"><path d="M1 6h22m0 0l-5-5m5 5l-5 5" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="Mj0vd5CfrwCwh0oOBmBaxm"/></svg></div>
+          <div class="flow-node" data-page-node-id="uvfPCocCOhtGYECLy1jGWb"><span class="ic" data-page-node-id="hr2yz0DlQP6fwDPAdCTMUp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="YqZyUGsC3qj6ZUWhLGeSTZ"><rect x="3" y="6" width="18" height="13" rx="1" data-page-node-id="y1tPT7AgwAb5cXuPEOPbry"/><path d="M3 9h18M7 13h6M7 16h4" data-page-node-id="30iYdyDBuVc6gxB1iwcsX3"/></svg>
+          </span><div class="n" data-page-node-id="bfnDsUzSaRWKATP0h875Nq">03</div><div class="t" data-page-node-id="QGhFdXZVBIGVP9isWb0lRI">主舰委托 · 贡献资源</div></div>
+          <div class="flow-arrow" data-page-node-id="eHCAQf2SIGqnhPP4YbuE05"><svg viewBox="0 0 26 12" data-page-node-id="hPknkF9LxOgD7ayIlRu8F9"><path d="M1 6h22m0 0l-5-5m5 5l-5 5" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="yCPINKqbNQe1vrtXLO28lq"/></svg></div>
+          <div class="flow-node" data-page-node-id="8cRwPWf9eR3FfbZGaHkGcU"><span class="ic" data-page-node-id="vOqiXyD2sjlyNfAVRHKCc2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="znxSyFQ7buU92vFIwqW0UJ"><circle cx="12" cy="12" r="4" data-page-node-id="1sbgnDIKTE5WcOT7OKfooo"/><circle cx="12" cy="12" r="8" data-page-node-id="4clyQGBKitAYgFLuvgO5XD"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3" data-page-node-id="G5RgRTMVT9kNJq5Mu1qfWa"/></svg>
+          </span><div class="n" data-page-node-id="fuZBH35PeLiDF6qlAO1IfI">04</div><div class="t" data-page-node-id="D0cHtbNHGJFYv4Cj4it4nK">修复主舰 · 解锁裂隙</div></div>
+          <div class="flow-arrow" data-page-node-id="sGbC9XlpHoYnvC1oDNB3lR"><svg viewBox="0 0 26 12" data-page-node-id="Gh0P6kCbOgFlUNyTrMbKSH"><path d="M1 6h22m0 0l-5-5m5 5l-5 5" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="GzEL9REpSiOYDf8Em8Ds6L"/></svg></div>
+          <div class="flow-node" data-page-node-id="48DHDXhv1kRMow6KiZHwAZ"><span class="ic" data-page-node-id="oAuVpHc2ueG6MNbacNYkwJ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="7w1JrAnNNiImTukVjV6l7x"><path d="M12 2c-4 5-4 9 0 12 4-3 4-7 0-12zM12 14c-2 3-2 5 0 7 2-2 2-4 0-7z" data-page-node-id="Z7PXcY2cpAcaDi1IKz3A3k"/></svg>
+          </span><div class="n" data-page-node-id="E2OGixv1zYeXJYCI0N0f5u">05</div><div class="t" data-page-node-id="3BYy1abh4kBxorkmm8UJi0">远征 · 异星材料</div></div>
+          <div class="flow-arrow" data-page-node-id="CjCsDXTNlCsFxAE4MgFGj4"><svg viewBox="0 0 26 12" data-page-node-id="4gVkivPFEnwgbaT0PdB1oX"><path d="M1 6h22m0 0l-5-5m5 5l-5 5" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="e2tsDq5iagWqhHI3PNDgYs"/></svg></div>
+          <div class="flow-node" data-page-node-id="gwgFtPpIcaL4XyR8rsNgRK"><span class="ic" data-page-node-id="2LD6CRMQRji6jxfEt4oEvJ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="Cf8f6VHH7kPr2Pkzuo6c4e"><path d="M12 20l9-9-9-9-9 9 9 9z" data-page-node-id="x7B8vTueRrKj49BnfvePZJ"/><path d="M9 12h6M12 9v6" data-page-node-id="B6fEAoKzAqu44CcHgxLA0g"/></svg>
+          </span><div class="n" data-page-node-id="TjiMjD7sdDsfqbs3M8DX3N">06</div><div class="t" data-page-node-id="bpYmkTeqjKvCskS0RnW0bJ">升级生态舱</div></div>
+          <div class="flow-arrow" data-page-node-id="5yqwcZNuZh0j8T5i2kV80x"><svg viewBox="0 0 26 12" data-page-node-id="OQwwq5By5OLFtkMj4B4HaE"><path d="M1 6h22m0 0l-5-5m5 5l-5 5" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="pMlv79Yya35dJMCXRWRXuH"/></svg></div>
+          <div class="flow-node" data-page-node-id="2JTh5YbOyjTXlLAb7rEwCN"><span class="ic" data-page-node-id="Oa6JHAUgDFEpFx0HWTW0Fy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" data-page-node-id="9pM8A1GAt0EpqcoRhrYUzP"><circle cx="12" cy="12" r="2" data-page-node-id="suuPhyX6HKZF21O253bvg3"/><circle cx="6" cy="6" r="1" data-page-node-id="oY7ln0VGB6jHa2s96WoR7g"/><circle cx="18" cy="18" r="1" data-page-node-id="VsnZXgasWHKVuFuC0YWrCv"/><circle cx="18" cy="6" r="1" data-page-node-id="Y55F9yNWNRqDXwov2dKGMd"/><circle cx="6" cy="18" r="1" data-page-node-id="H10vFWuW2HpDVcp19uZF5w"/><circle cx="12" cy="3" r="1" data-page-node-id="SILvwxyBXaLciCNX7s811E"/><circle cx="12" cy="21" r="1" data-page-node-id="loy1flpdDbWacz3L86xPxz"/><circle cx="3" cy="12" r="1" data-page-node-id="8hzWVGsRAxc8lgY1T5zHie"/><circle cx="21" cy="12" r="1" data-page-node-id="7AtcSM9o8ZFnS2JINPkfUS"/></svg>
+          </span><div class="n" data-page-node-id="05qrXRWAYCjqV4njunxUM7">07</div><div class="t" data-page-node-id="E8d97L5Dkffk6ObLC7LRAt">前往更远星域</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 生态舱系统 -->
+    <section class="mod-section" id="habitat-mod" data-page-node-id="CfU22bpSd5uSlpOLbE2uNH">
+      <div class="wrap" data-page-node-id="VIx8DKZ1Mec0qpMMBM7SG8">
+        <div class="big-split" data-page-node-id="tOVrXAD2pO6sFtkWCiV9cj">
+          <div class="media" data-page-node-id="8sh2HvT8yZVwN2sQQFmveD">
+            <img src="img/03-habitat.png" alt="标准生态舱" data-page-node-id="8S2cV7RigIYS9Ki1PvxvEy"/>
+            <span class="cap" data-page-node-id="QIFL5DJwZZjzhhVTN9BuRn">ECOSYSTEM POD · 标准生态舱</span>
+          </div>
+          <div data-page-node-id="OYWGkHWD6K9LTU4JTrRWJU">
+            <div class="section-head" style="padding:0;" data-page-node-id="CCay5n4XYDQ6G4Ca0zjpms">
+              <div class="tag" data-page-node-id="5pbWEx9aO5c0wSRqMut7M7">ECOSYSTEM POD / 独立生态舱</div>
+              <h2 data-page-node-id="6nBDpqPSTrcvVMOrkFUJ7r">一座舱体，<em style="color:var(--c-habitat)" data-page-node-id="M34s214Qpx5LKphakko4Xw">一座世界</em></h2>
+              <div class="sub" data-page-node-id="QEPgbxvkv4NXwSPCAVYeRC">生态舱分散部署，是为避免一次事故摧毁整个文明。每座舱体独立发展、独立供养其开拓者。</div>
+            </div>
+            <div class="modlist" data-page-node-id="yeZI8JVCxaJqvXhjxhBOQK">
+              <div class="moditem" data-page-node-id="PTXi57N0R82Jkn3qGYvUGt"><div class="m-ic" style="background:rgba(112,217,138,.12);color:var(--c-habitat);" data-page-node-id="jEsYXuf2AO6NLBFpXDCIpr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 20 7.5v9L12 21 4 16.5v-9L12 3Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg></div><h4 data-page-node-id="Wa9wCdSMXYDDfmgvGY627M">物质重构器</h4><div class="en" data-page-node-id="2ny1KUET25725qCDlSXmfB">MATTER RECONSTRUCTOR</div><p data-page-node-id="pHfZfzZkm0LRQdKmq70AyT">从空间残留物中生成基础材料，是空岛生产的核心设备，无法直接产出高级能源与完整科技。</p></div>
+              <div class="moditem" data-page-node-id="rcDNKOAhFQ9pRTk6EXhe6u"><div class="m-ic" style="background:rgba(54,191,165,.12);color:var(--c-habitat-deep);" data-page-node-id="nz0yko9hLnJ2mz5ixyuAwU"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 1 7-11.5M18.5 4v4.5H14"/><path d="M18.5 8.5 20.8 5.6"/></svg></div><h4 data-page-node-id="WlGumaOLsnNMlvaFgjULLt">农业循环</h4><div class="en" data-page-node-id="pUwc0W8sPoftHFjVX0qFiv">AGRICULTURAL CYCLE</div><p data-page-node-id="REeBPXU5GD4U3t7yux65z5">建立自给自足的食物与生态循环，维持开拓者长期生存所需。</p></div>
+              <div class="moditem" data-page-node-id="MY13oKqhssZFCvjET9o88h"><div class="m-ic" style="background:rgba(112,217,138,.12);color:var(--c-habitat);" data-page-node-id="wS1hbvwTVwevkMOwB4nrCr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 6 13h5l-1.5 8L17 11h-5l1-8Z"/></svg></div><h4 data-page-node-id="oE19uNmh88YtxW6UWDpRcH">能源储备</h4><div class="en" data-page-node-id="HKkcEhPLG4L0s12ebIIXDn">ENERGY RESERVES</div><p data-page-node-id="T18wKWutdZVjD7PY7ICtPX">有限能源的规划与储存，决定舱体稳定度与可扩展范围。</p></div>
+              <div class="moditem" data-page-node-id="vDgCrxDGRgVEPPQqGnYFkd"><div class="m-ic" style="background:rgba(216,180,91,.12);color:var(--c-gold);" data-page-node-id="zvgDnwtg3NjEcRdX4PtFIL"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></svg></div><h4 data-page-node-id="rq4KXdImktAr2sobGywiFn">自动化设施</h4><div class="en" data-page-node-id="wVrqZm8z6DEc2U9xie3FxM">AUTOMATION</div><p data-page-node-id="BuetD4fv0bjxRUNEdZgMLX">通过裂隙带回的机械部件，逐步实现生产流程的自动化升级。</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 主舰区域 -->
+    <section class="mod-section" id="stellaris-areas" data-page-node-id="DCcwy8wkqJNNNGrE2DhcAB">
+      <div class="wrap" data-page-node-id="jZK7C6gb76pniJYRzA3y2l">
+        <div class="section-head" data-page-node-id="J0ISzYHQY9aMtvXOcOuPcL">
+          <div class="tag" data-page-node-id="GdeeM6GznoYmTxtPk8S54K">THE ARK / 方舟主舰 STELLARIS</div>
+          <h2 data-page-node-id="o16Cy8FOq9FOkZ50BFDjUG">舰内五区 · <em style="color:var(--c-stellaris)" data-page-node-id="n4elo3fTBb46sGPHrHi3bt">文明中枢</em></h2>
+          <div class="sub" data-page-node-id="TtITfv4vICf27cXgj6io7c">回到主舰不是回城，而是把自己的生产成果交还给共同体。修复主舰，即推动全服文明存续进度。</div>
+        </div>
+        <div class="big-split" style="grid-template-columns:1fr 1.1fr;" data-page-node-id="VsKgcIRrOXwrXffr1tGKrl">
+          <div class="modlist" data-page-node-id="LLCuXdQ7PColWxiaPIVwKF">
+            <div class="moditem" data-page-node-id="hBboQcnCoe2I7X7vh9TKIa"><div class="m-ic" style="background:rgba(98,217,255,.12);color:var(--c-stellaris);" data-page-node-id="v1zZ94GDiAHvh4hHFhrr4D"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 6 13h5l-1.5 8L17 11h-5l1-8Z"/></svg></div><h4 data-page-node-id="c0K8uE7XRO3D5Kyd9dRcxT">能源核心</h4><div class="en" data-page-node-id="EwEmpiPtFPAeZQlTzNQNHw">ENERGY CORE</div><p data-page-node-id="1b4lchRmFBZlOqy02XIjAB">主能源核心持续衰减，是全服最紧迫的修复对象，其状态代表文明存续进度。</p></div>
+            <div class="moditem" data-page-node-id="r9v40fi6bYemjfMY2mWi9d"><div class="m-ic" style="background:rgba(98,217,255,.12);color:var(--c-stellaris);" data-page-node-id="yDjMoDQhibu7cyruanxjYB"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="1.5"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/></svg></div><h4 data-page-node-id="NL4pSD88dDEH7t7sZBoxIp">任务中心</h4><div class="en" data-page-node-id="Ad45YQnQCVrE6CapfA6eHm">MISSION HUB</div><p data-page-node-id="BORfYkEw3sGbI5K4plpCqN">发布主舰委托、管理文明资源贡献，衔接个人生产与全服目标。</p></div>
+            <div class="moditem" data-page-node-id="W1bCqvYxCDyrZNSd7tEF0e"><div class="m-ic" style="background:rgba(98,217,255,.12);color:var(--c-stellaris);" data-page-node-id="FSdUmqMo3oiUp8YNxCGsJm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 7.5a5.2 5.2 0 0 1-6 0L8 3Z"/><path d="M12 10.5V15M9.5 21l1.5-6h2l1.5 6M12 15l3 6M12 15l-3 6"/></svg></div><h4 data-page-node-id="QkwMCCGn8W7H3eD6stjzcC">公共大厅</h4><div class="en" data-page-node-id="ordyVpWuINhy1yHUFJsMbU">CENTRAL HALL</div><p data-page-node-id="zE3UCU1QEHJ3SV6p0Tb6zG">交易、组队、科研与社交的中枢，幸存者文明的公共心脏。</p></div>
+            <div class="moditem" data-page-node-id="TFeAmS9j7Wi0utUjoEU2Nn"><div class="m-ic" style="background:rgba(216,180,91,.12);color:var(--c-gold);" data-page-node-id="EF26s9AEyeUbMYPKwoRPKr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M9 4v6l2-1.5L13 10V4M9 14h6M9 17h6"/></svg></div><h4 data-page-node-id="RWFYxUnPdHAa5CI75HgsDi">文明档案</h4><div class="en" data-page-node-id="u1oKekbr6UBTmdjAPlPPpK">CIVILIZATION ARCHIVE</div><p data-page-node-id="jaufuC4Re3O62bVjM3a7oG">保存断航日档案与最高权限封锁的记录，是长期悬念的钥匙。</p></div>
+          </div>
+          <div class="media" data-page-node-id="ERe79NGq9ZzXbuPmS1Hhi0">
+            <img src="img/02-central-hall.png" alt="中央大厅与能源核心" data-page-node-id="fqMSQP4H2s16yLGfbV6PiP"/>
+            <span class="cap" data-page-node-id="8bJK8HGUbWKxJDlIhlwHth">STELLARIS · 中央大厅与能源核心</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 裂隙副本 -->
+    <section class="rift-section" id="rift" data-page-node-id="05ozTQH1mRmgR2ovCPbaZB">
+      <div class="wrap" data-page-node-id="smqBMVTBLbh4s0B5GsM2oI">
+        <div class="section-head" style="padding-top:0;" data-page-node-id="id44PeEg6Hbiz8cvh9TBIr">
+          <div class="tag" data-page-node-id="RwTgBBr1xFty9Z2lpddj8s">THE RIFT / 空间裂隙 · 远征星域</div>
+          <h2 data-page-node-id="UHUBdsEqj6jSJc0Xl4Ee1W">穿越裂隙，<em style="color:var(--c-rift)" data-page-node-id="5plb7GwdMnGmJkO4wij0lP">触碰未知</em></h2>
+          <div class="sub" data-page-node-id="GzmA8qKAGjbneTg5PPGj3O">裂隙不是单纯的刷怪入口，而是文明获取稀有资源与了解外部世界的唯一途径。开启与稳定裂隙会消耗主舰能源。</div>
+        </div>
+        <div class="rift-big" data-page-node-id="vj0ar1BvVK0PrGiOixsjGs">
+          <img src="img/04-wasteland.png" alt="荒芜矿星" data-page-node-id="8f6EoVCH2ZY6Z0DW26Ieef"/>
+          <div class="txt" data-page-node-id="KfWAoW48jNpCkLbfTyjGET">
+            <div class="tag" data-page-node-id="71hMknH0vaZMrYwyOcUmKn">RIFT ZONE / 荒芜矿星</div>
+            <h3 data-page-node-id="9i7h6G8XFQEx7EULr2ZcyI">失落星域的第一道裂隙</h3>
+            <p data-page-node-id="ko7BWVGsgUbn7wuG3ygB0k">由远征小队深入探索。裂隙另一端拥有明显不同的环境与文明痕迹，蕴藏修复主舰所需的星核碎片、异星种子与机械部件。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 视觉规范色板 -->
+    <section class="visual-section" id="visual" data-page-node-id="e4QESXOAGn08oxYGHVIA5z">
+      <div class="wrap" data-page-node-id="gqPJvvQo59VDyR5PcQuzrD">
+        <div class="section-head" style="padding-top:0;" data-page-node-id="CrstVQgCw3NOW6fHtYkl1c">
+          <div class="tag" data-page-node-id="FausILMNF8gSGtaRGouFG2">VISUAL IDENTITY / 视觉系统</div>
+          <h2 data-page-node-id="PA17aNyyBYhqQiEStzHimD">系统识别色 · <em data-page-node-id="U01sABhkBsqZ9vH7pakYii">设计规范</em></h2>
+          <div class="sub" data-page-node-id="tislDG0TV4BJ6K8H9tHdXM">星郡视觉以"方块工业硬科幻"为基调，冷色为主、克制高光。色彩即功能，每一种系统识别色对应一个世界层级。</div>
+        </div>
+        <div class="swatches" data-page-node-id="2BL7t7s5E7I8Vr8KZIgMGA">
+          <div class="swatch" data-page-node-id="kFoKSxc1DVsCbc1F50Pybc"><div class="chip" style="background:#62D9FF" data-page-node-id="h46EKlx4CdnS1hZfuXESaB"><span class="cno">SYS·01</span><span class="dot"></span></div><div class="info" data-page-node-id="z7TTvx6TfTbYmqrovo5BBq"><div class="hex" data-page-node-id="4upFv7AKmcqIpAELuc2nIS">#62D9FF</div><div class="role" data-page-node-id="kYtboGSDA5TMOTRswducBd">STELLARIS · 秩序</div></div></div>
+          <div class="swatch" data-page-node-id="YNG2KWSxqz9AK7sSZz3uMi"><div class="chip" style="background:#70D98A" data-page-node-id="LcmziZQJZf48UeZFbgMWMP"><span class="cno">SYS·02</span><span class="dot"></span></div><div class="info" data-page-node-id="W7QRtpZYfH6bB4XXmaYLdB"><div class="hex" data-page-node-id="OO6VzTv5aht8Qv4PdJNgzb">#70D98A</div><div class="role" data-page-node-id="JC2Jbiy3jh2OHnIwRldifV">生态舱 · 生命</div></div></div>
+          <div class="swatch" data-page-node-id="nsb7svFeRkhofPdiFgahoq"><div class="chip" style="background:#9A6BFF" data-page-node-id="L5Uh1Mm6YB6w0KSDeCROOy"><span class="cno">SYS·03</span><span class="dot"></span></div><div class="info" data-page-node-id="jjAkmCGQEDtJjEwbX0Vqyc"><div class="hex" data-page-node-id="iln02CBZya7RqtfOk7VwfV">#9A6BFF</div><div class="role" data-page-node-id="6yXxKDwACYZWVNOcj0zCHv">裂隙 · 未知</div></div></div>
+          <div class="swatch" data-page-node-id="GlU1kPhbAK0got7nfvMNdo"><div class="chip" style="background:#D8B45B" data-page-node-id="DtuF0e8oIxkgAsUAmWlU8J"><span class="cno">SYS·04</span><span class="dot"></span></div><div class="info" data-page-node-id="XnL2vyGnO02V8pcyKhFCVz"><div class="hex" data-page-node-id="ogASnZTCpGGsKAMEw7GVl0">#D8B45B</div><div class="role" data-page-node-id="Ji9sOBW0OENHFhn0pc4XnG">遗物文明 · 历史</div></div></div>
+          <div class="swatch is-warn" data-page-node-id="sI16JHnRJudGPWO87tAaz5"><div class="chip" style="background:#FFAA45" data-page-node-id="bIaUrxdwbhT19p8nO6V6xy"><span class="cno">WARN·05</span><span class="dot"></span></div><div class="info" data-page-node-id="h19r9I91QEsf8VE57SUM3O"><div class="hex" data-page-node-id="D3Qw4vioklVaMVLefh5MGI">#FFAA45</div><div class="role" data-page-node-id="3k3atWFY5bPvzmMXjt6QI5">注意状态</div></div></div>
+          <div class="swatch is-warn" data-page-node-id="XmT9eH0Zg6V968rztRVjhe"><div class="chip" style="background:#FF4B55" data-page-node-id="l5VYrI062OXlF2IKosvy7K"><span class="cno">WARN·06</span><span class="dot"></span></div><div class="info" data-page-node-id="YFEH4QtCw5iwN7c47D1S8E"><div class="hex" data-page-node-id="dffnILroKvQ9yoUc8wCLpj">#FF4B55</div><div class="role" data-page-node-id="6ix7uRaTHTujme4s10F3hD">危险状态</div></div></div>
+        </div>
+        <div class="pillars" data-page-node-id="7ZVr6zl91YNK7tjDMM5BLE">
+          <div class="pillar" data-page-node-id="tUn32FxMk8HmrQ0A2Lxrdb"><div class="no" data-page-node-id="KBLKMVL4xO9bGCgP6dJMrW">01</div><h4 data-page-node-id="uZlnqGK3fydtCYHJXtgWxi">配色比例</h4><p data-page-node-id="RkF3NsQQhr3tROWprd9jGA">舰体底色 72% · 冷灰白 18% · 系统识别色 7% · 警示色 3%</p></div>
+          <div class="pillar" data-page-node-id="PeYZYTIkyKRhz85nl1zuFm"><div class="no" data-page-node-id="Bv6mJ5UkEMoU4EzGs1aJWt">02</div><h4 data-page-node-id="6OkGMOJqxSM9g4cRBKCjuY">材质语言</h4><p data-page-node-id="XVRjsGBY9YkGUiSzOgmhtm">拉丝金属 · 枪灰合金 · 老化但不失秩序 · 低照度高光</p></div>
+          <div class="pillar" data-page-node-id="Mthqf2l0n7Bib6HGtqgqkS"><div class="no" data-page-node-id="zdbGpBVmlgpAKUibj9LO2i">03</div><h4 data-page-node-id="IqBry0cm5WKD3VDAHvB0iD">文字字体</h4><p data-page-node-id="OCmcMZyL7hErL4MyFWiHFL">方块几何 · 编辑克制 · 英文标题 + 中文信息分层</p></div>
+          <div class="pillar" data-page-node-id="SmF5KgAXcJc93W1nZD4imv"><div class="no" data-page-node-id="FQrekArtnsoIgU4UNFpfam">04</div><h4 data-page-node-id="ugFwynPwXgC9U4DXFXpSwE">信息克制度</h4><p data-page-node-id="ZeMkSdPbySnJP9Osl30Ddo">先让画面建立气质，再让文字补充意义 · 拒绝塞满</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 开发路线 -->
+    <section class="road" id="road" data-page-node-id="3zRLpNMJfSk4e0wZj2lfBk">
+      <div class="wrap" data-page-node-id="rKAwFQU25MePqeyOmM1MWt">
+        <div class="section-head" style="padding-top:0;" data-page-node-id="XE9OPqpKh9JRVBNojDk6C8">
+          <div class="tag" data-page-node-id="V74F7dqNX8hBhCbqK2xc3T">ROADMAP / 开发路线</div>
+          <h2 data-page-node-id="eE3cgQzcIj5QzOE4JZuHFD">从苏醒到 <em data-page-node-id="NOW1L4mrdhJe6HghhMRGZa">远征</em></h2>
+          <div class="sub" data-page-node-id="KHEnJlJtkQqvTZStwiLOSP">围绕"生态舱—主舰—裂隙"三大空间逐期落地，用主舰跃迁解释地图、资源与剧情的阶段变化。</div>
+        </div>
+        <div class="timeline" data-page-node-id="3s8j8YaXTibr4r3wFLOV8J">
+          <div class="tl-item" data-page-node-id="x3lvZ93tHFXdtrmUs49oVy"><div class="phase" data-page-node-id="G15Ab1K14I8fYIjj3mN4Ds">PHASE · MVP</div><h4 data-page-node-id="G7cB21sWk3grvHy2awThgl">基础生存循环</h4><p data-page-node-id="xT4nBkGDBB1lKqRoZDLjpu">生态舱部署、物质重构器 Mk.I、基础建设，让玩家理解"我的空岛是一座生态舱"。</p><span class="tagline" data-page-node-id="gXTZmR81a4dcUoZIx3dmd2">Mvp · 生态舱落地</span></div>
+          <div class="tl-item" data-page-node-id="WdiCXQfsrufbMpQNVMTF6g"><div class="phase" data-page-node-id="kSPC7cBOykUyVrlGpqDBoj">PHASE · 02</div><h4 data-page-node-id="J2gcEFZ3kAsZVzAQJZmypm">主舰委托与公共进度</h4><p data-page-node-id="P7TZ82XCE1KrZqmv2xTWbn">主舰任务、资源贡献、文明存续进度条，让玩家把产出交还共同体。</p><span class="tagline" data-page-node-id="tFwbEFyRSIZA6zUYreiPjc">主舰修复工程</span></div>
+          <div class="tl-item" data-page-node-id="IP1Xb2kenNtuRFuTtsCjUK"><div class="phase" data-page-node-id="1t6TFaWIeh88NSZyCtRXKc">PHASE · 03</div><h4 data-page-node-id="vGa1rnWFs9gBD4ujggaRT8">首次裂隙远征</h4><p data-page-node-id="AtocrDLi7I1ipwGGEon6GB">荒芜矿星裂隙开放，远征小队制度，引入稀有资源与异星科技。</p><span class="tagline" data-page-node-id="IltJ951Ci4BYHRVZeQoigW">第一道裂隙</span></div>
+          <div class="tl-item" data-page-node-id="yWVncv8SrtrmGTL62l7bIk"><div class="phase" data-page-node-id="mIgiWa2stE1MdNMLY8ubNj">PHASE · 04</div><h4 data-page-node-id="lw2ptj5R4XWLV4Q7AG01WJ">升级与自动化</h4><p data-page-node-id="l7bitET61uUuDH6ArRlQ3u">物质重构器 Mk.II/III、自动化设施、舱体稳定度扩张。</p><span class="tagline" data-page-node-id="wR3O64nkfRM1k7r5H2gxfe">技术阶梯</span></div>
+          <div class="tl-item" data-page-node-id="x4lj98XJ7x0LG4dAXHRXsG"><div class="phase" data-page-node-id="roGoKylr8LabUVb2CN1KXq">PHASE · 05</div><h4 data-page-node-id="POFACKaWsDH8HMdW5GBDWV">主舰跃迁 · 赛季更替</h4><p data-page-node-id="KcrfVBUAGa167mwGbikHDQ">主舰完成修复并跃迁至新星域，解释新副本与主城变化。</p><span class="tagline" data-page-node-id="rBCDz7v7ntQ1edDvlWaS5m">新空域降临</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 图鉴预告 -->
+    <section class="archive-strip" id="archive" data-page-node-id="vTot0i42hjyJKUMIRVdFZv">
+      <div class="wrap" data-page-node-id="CMLiCr7SlERCh3q7gZDYba">
+        <div class="strip-row" data-page-node-id="FWuLKX3vOCpIFwgQ9k6q4V">
+          <div data-page-node-id="VNoR8XTwRmne5dpGzmFoNZ">
+            <h3 data-page-node-id="HJZpZgwdOsDwNrEcIdL1ug">完整世界观，沉淀于 <em data-page-node-id="Md4olBMnr9wg2ZsB64YUw6">档案库</em></h3>
+            <p data-page-node-id="Q34Yn6XUc6UMpFFt92NChN">深入浏览星郡的世界观 Wiki 与设定图鉴：三大空间全案、世界运行四规则、开拓者图鉴、稀有资源档案、失落文明记录。</p>
+          </div>
+          <div style="text-align:right;" data-page-node-id="GntLIDYAXBSGpYISDiS2cH">
+            <button class="btn btn-ghost" data-goto="wiki" data-page-node-id="uDhoYErHchH2K4ux660eVr">世界观档案库 <span class="arr" data-page-node-id="LYFCe03mQJuDHJxl4DF73l">→</span></button>
+            <div style="margin-top:12px;" data-page-node-id="P7PkwKOHDcPISiVZ5sIuc7"><button class="btn btn-ghost" data-goto="codex" style="border-color:rgba(154,107,255,.4);color:var(--c-rift);" data-page-node-id="Ju8w9uCeL7UWRDUJasqASM">设定图鉴 CODEX <span class="arr" data-page-node-id="BKYOKGb53tCudPxH30jA3c">→</span></button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======= 视图二：世界观档案Wiki（内容由 JS 渲染） ======= -->
+  <main class="view" id="view-wiki" data-page-node-id="fLzn1YsJdqTHJAH8zeLrCC">
+    <div id="wiki-mount" data-page-node-id="0tyKzAaqz1pXj4wnoA482r"></div>
+  </main>
+
+  <!-- ======= 视图三：设定图鉴 ======= -->
+  <main class="view" id="view-codex" data-page-node-id="b4GMxJZA80ulDeoeZfBW1K">
+    <div id="codex-mount" data-page-node-id="VdFI3CddLpdzF79MoMPJaO"></div>
+  </main>
+
+  <!-- ======= 底部 ======= -->
+  <footer id="global-footer" data-page-node-id="UJpnx4iop6BRacCheFSGOb">
+    <div class="foot-grid" data-page-node-id="JFs10CdA6rcB4GzjA2uvhW">
+      <div class="foot-brand" data-page-node-id="qmBWlzq95rM7nuBorhRf6Y">
+        <img src="img/favicon.png" alt="STELLARIS" data-page-node-id="APFIBeDCMemClCtXs7TnPx"/>
+        <div class="name" data-page-node-id="2hiQV57KYNRDZRLe9SqN4C">STELLAR<b style="color:var(--c-stellaris);" data-page-node-id="AeqCQSP1f4TQmaV4y5DnTl">IS</b> // 星郡</div>
+        <p data-page-node-id="b57O9vjx43FIG1YkK9Ct6G">从一座生态舱开始，重建一片星海。Minecraft 星系生存 · 文明重建服务器企划。</p>
+      </div>
+      <div class="foot-col" data-page-node-id="Q7xDIzpqJEgcMxxrINGaJb">
+        <h5 data-page-node-id="OZ820xyfKPkxA52cFlQXBe">ARCHIVE</h5>
+        <a href="#" data-goto="home" data-page-node-id="PXZOHVG7uZgXYvLEyVtiZE">返回首页</a>
+        <a href="#" data-goto="wiki" data-page-node-id="LJS9g1oiWfzw5d0vTLWDYu">世界观档案库</a>
+        <a href="#" data-goto="codex" data-page-node-id="TAGvMmTc1voZyHxLS0g4Lx">设定图鉴</a>
+      </div>
+      <div class="foot-col" data-page-node-id="H7wxR0iQ9qMO3KQrlDdZs4">
+        <h5 data-page-node-id="uhLPASEL0QeZ8eDRCMh9gj">SYSTEM</h5>
+        <a href="#" id="footFx" data-page-node-id="njwmD9qEP8ayt9GuGiwcNP">粒子特效：开 / 关</a>
+        <a href="#" id="footPlayer" data-page-node-id="eu8U47FTOcsYV1BbnafDiW">唤醒音乐终端</a>
+      </div>
+    </div>
+    <div class="foot-copy" data-page-node-id="dmJuVewRobYnC1cdBrkh8H">
+      <span data-page-node-id="IlyZHGezDxnsQTlIsakvmy">© 星郡企划 STELLARIS · 代号：星郡</span>
+      <span class="mono" data-page-node-id="yK2V5wlkUE1wc2UyIQiqK3">DEEP FIELD ARCHIVE v2.0 · BLOCK-BUILT CIVILIZATION</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ======= 音乐播放器 ======= -->
+<div id="player" data-page-node-id="h5mJJ4zbIdiVNGe14Wmy2v">
+  <div class="pl-top" data-page-node-id="RjfT9i4DGYZkUTxof6wb8G">
+    <div class="pl-art" id="plArt" data-page-node-id="hK3AqOjrmqYfIYeI21lNKF"><span class="disk" style="position:absolute;inset:0;" data-page-node-id="mHwsw3zIBIhv0nTGB1uqmY"></span></div>
+    <div class="pl-meta" data-page-node-id="ZZag60PmNmsbgF4ry1nO6D">
+      <div class="pl-title" id="plTitle" data-page-node-id="agCmqMvMJNc45pvkvaHLnf">TRANSMISSION 001</div>
+      <div class="pl-sub" id="plSub" data-page-node-id="c3ztyQgRcBTfAPmYELgII6">STELLARIS · FIELD RECORDING</div>
+    </div>
+    <button class="pl-x" id="plClose" data-page-node-id="RI6UvqiTDFRna5T4CbaS4S">✕</button>
+  </div>
+  <div class="pl-bar" data-page-node-id="gin9l1ZOndI6A4Xl4pkFHp">
+    <div class="pl-prog" data-page-node-id="EhO5xtVGwYlWs3XFRgmivP">
+      <span id="plCur" data-page-node-id="bTVAqHlYB3TUTk0m2BEMBQ">00:00</span>
+      <div class="pl-track" id="plTrack" data-page-node-id="NyoVW0zNL4ONqRy9nQJyGq"><div class="pl-fill" id="plFill" data-page-node-id="WSn6p8PDwQzR8zj52cZ92e"></div></div>
+      <span id="plDur" data-page-node-id="7FoKQUlBlCbFtOb8boCUBm">00:00</span>
+    </div>
+  </div>
+  <div class="pl-ctl" data-page-node-id="7AyOuw1X9LxZO2aV2drWya">
+    <button class="pl-btn" id="plPrev" title="上一首" data-page-node-id="kFyLglHGfIX3BMqqavh8LO">⏮</button>
+    <button class="pl-btn pl-play" id="plPlay" title="播放/暂停" data-page-node-id="NUy5bwa3MzNdwSWaJwmz2Z">▶</button>
+    <button class="pl-btn" id="plNext" title="下一首" data-page-node-id="vd9yqnAIArYmeAC8dH24PS">⏭</button>
+  </div>
+  <div class="pl-vol" data-page-node-id="bACdelpyfzGa94rSief5rZ">
+    <span style="font-family:var(--font-en);font-size:9px;letter-spacing:.1em;opacity:.6;" data-page-node-id="jlb3XLAlWelnNld5F9ztUP">VOL</span>
+    <input type="range" id="plVol" min="0" max="1" step="0.01" value="0.7" data-page-node-id="HuR7DoZJ1fbAa0ZUHZTQ9B"/>
+  </div>
+  <div class="pl-list" id="plList" data-page-node-id="qi57A363Ay3aYjkesuh2Nu"></div>
+</div>
+<audio id="plAudio" preload="metadata"></audio>
+
+<script>
+/* =========================================================
+   数据层 — 世界观 / 图鉴 / 音轨
+   ========================================================= */
+const IMG = {
+  hero:'img/00-hero-mainvisual.png',
+  ship:'img/01-stellaris-ship.png',
+  hall:'img/02-central-hall.png',
+  habitat:'img/03-habitat.png',
+  wasteland:'img/04-wasteland.png',
+  obs:'img/05-rift-observatory.png',
+  cycle:'img/06-three-worlds-cycle.png'
+};
+
+/* ---- 几何线性图标库：把 emoji / unicode 字形替换为一致的 24x24 stroke SVG ---- */
+const GEO = {
+  // 层 · 三大空间：三层错位平台
+  three:'<rect x="3" y="15.5" width="12" height="3.5"/><rect x="8" y="10" width="12" height="3.5"/><rect x="5" y="4.5" width="12" height="3.5"/>',
+  // 天平 · 世界规则
+  scale:'<path d="M12 4v16M8.5 20h7"/><path d="M12 4 4 9.5 4 11a2.3 2.3 0 0 0 4.6 0v-1.5L12 7l3.4 2.5V11a2.3 2.3 0 0 0 4.6 0V9.5L12 4Z"/>',
+  // 身份 · 玩家：同心标靶
+  target:'<circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/>',
+  // 危机 · 星：四角星
+  star:'<path d="M12 4l1.8 5.2L19 11l-5.2 1.8L12 18l-1.8-5.2L5 11l5.2-1.8L12 4Z"/>',
+  // 方块 · 物质重构（网格立方）
+  cube:'<path d="M12 3 20 7.5v9L12 21 4 16.5v-9L12 3Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',
+  // 循环 · 农业
+  recycle:'<path d="M12 20a8 8 0 1 1 7-11.5M18.5 4v4.5H14"/><path d="M18.5 8.5 20.8 5.6"/>',
+  // 能量：闪电（双瓣）
+  bolt:'<path d="M13 3 6 13h5l-1.5 8L17 11h-5l1-8Z"/>',
+  // 齿轮
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>',
+  // 任务 · 清单板
+  board:'<rect x="4.5" y="3.5" width="15" height="17" rx="1.5"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/>',
+  // 大厅 · 信号塔
+  tower:'<path d="M8 3h8l-1 7.5a5.2 5.2 0 0 1-6 0L8 3Z"/><path d="M12 10.5V15M9.5 21l1.5-6h2l1.5 6M12 15l3 6M12 15l-3 6"/>',
+  // 档案 · 书卷/抽屉
+  file:'<path d="M5 4h14v16H5z"/><path d="M9 4v6l2-1.5L13 10V4M9 14h6M9 17h6"/>',
+  // POD 舱 · 小屋/穹顶
+  pod:'<path d="M4 13a8 8 0 0 1 16 0Z"/><path d="M3 20h18M12 13l-2 4.5M12 13l2 4.5"/><path d="M12 13l-4.2 2.4M12 13l4.2 2.4"/>',
+  // ARK 主舰 · 舰
+  ark:'<path d="M4 14 7 6h10l3 8v5H4v-5Z"/><path d="M7.5 14h9M12 6v13"/>',
+  // RIFT 裂隙 · 旋涡
+  rift:'<path d="M12 3a9 9 0 0 1 0 18M12 3a6 6 0 0 0 0 12M12 3a3 3 0 0 1 0 6"/>',
+  // 方格 · 系统/资源
+  grid:'<rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/>',
+  // 菱形 · faction
+  diamond:'<path d="M12 4l7 8-7 8-7-8 7-8Z"/>',
+  // 探索 · 虚线路径星
+  explore:'<circle cx="12" cy="12" r="8"/><path d="M12 12 16 8M12 9v-2.5M12 12l-2.5 3.5"/>'
+};
+const GEO_FALLBACK = 'grid';
+// unicode 字符 -> 英文 key 别名（兼容历史数据）
+const GEO_ALIAS = {'☷':'three','⚖':'scale','◎':'target','✧':'star','▦':'cube','♻':'recycle','⚡':'bolt','⚙':'gear','📋':'board','📡':'tower','🗄':'file','🛠':'pod','📦':'ark','🌀':'rift','◉':'rift','◆':'diamond','⬢':'star','☰':'pod','●':'target','○':'target'};
+function IC(k, cls){
+  const key = GEO[k] ? k : (GEO_ALIAS[k] || GEO_FALLBACK);
+  const p = GEO[key];
+  return `<svg class="${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+}
+
+/* ---- 世界观 Wiki 章节（来自 世界观 v2 全 13 章） ---- */
+const WIKI = [
+  {id:'overview', no:'01', tag:'定位', color:'#62D9FF', title:'世界观定位', en:'WORLDVIEW ORIENTATION',
+   blocks:[
+     {t:'sub', c:'星郡的世界观定位于<b>星系生存、文明重建、异星探索</b>。整体气质：孤寂但不绝望，在危机中保留建设与发现的希望。核心体验是让玩家成为让文明继续运转的一名开拓者，而非拯救宇宙的英雄。核心主题为「分散求生 · 共同重建 · 探索未知」。'}
+   ]},
+  {id:'oneline', no:'02', tag:'摘要', color:'#62D9FF', title:'一句话世界观', en:'THE WORLD IN ONE LINE',
+   blocks:[
+     {t:'quote', c:'星海航路崩塌后，最后的幸存者乘坐方舟主舰"STELLARIS"漂泊于破碎星域；玩家必须经营独立生态舱、探索空间裂隙，并为主舰寻找足以延续文明的资源与新家园。'}
+   ]},
+  {id:'lore', no:'03', tag:'背景', color:'#62D9FF', title:'核心背景 · 断航日', en:'THE BREAK',
+   blocks:[
+     {t:'p', c:'人类曾依靠遍布星海的折跃航路往返于不同星系。后来，一场被称为<b>"断航日"</b>的灾难引发了航路的连锁崩坏：空间被撕裂，星系彼此失联，大量殖民地在一夜之间消失于观测范围。'},
+     {t:'p', c:'灾难发生前，文明启动了最后的撤离计划——<b>星郡计划</b>。巨型方舟主舰"STELLARIS"搭载幸存者、胚胎库、文明档案与生态样本，逃入了一片尚未完全崩坏的空域。'},
+     {t:'h', c:'STELLARIS 在逃亡中严重受损'},
+     {t:'ul', items:[
+       '主能源核心持续衰减；',
+       '舰内生态系统无法长期供养所有幸存者；',
+       '跃迁引擎失去完整坐标；',
+       '周围只有危险且不稳定的空间裂隙。'
+     ]},
+     {t:'p', c:'为了延续文明，主舰开始唤醒冷冻舱中的开拓者，并将可独立运行的<b>生态舱</b>部署到舰外稳定空域。'},
+     {t:'emphasis', c:'每一名玩家，都是刚刚苏醒的开拓者；每一座空岛，都是一座等待重建的生态舱。'}
+   ]},
+  {id:'three', no:'04', tag:'空间', color:'#62D9FF', title:'世界的三个核心空间', en:'THREE SPATIAL LAYERS',
+   blocks:[
+     {t:'p', c:'整个玩法世界建立在三大空间之上。它们各有分工，又通过物资与进度彼此咬合，构成完整生存循环。'}
+   ]},
+  {id:'spark', no:'04a', tag:'方舟主舰', color:'#62D9FF', title:'空间 ①：方舟主舰 STELLARIS', en:'THE ARK · STELLARIS',
+   blocks:[
+     {t:'p', c:'主城对应 STELLARIS，是幸存者文明的中心。它承担三项功能：'},
+     {t:'cards', items:[
+       {ic:'▤', k:'生存中心', v:'保存人口、档案与最后的工业设施。'},
+       {ic:'☰', k:'公共中心', v:'提供任务、交易、组队、科研与全服目标。'},
+       {ic:'◉', k:'剧情中心', v:'主舰能源与修复进度，代表整个服务器的文明进度。'}
+     ]},
+     {t:'emphasis', c:'玩家回到主舰，不只是"回城"，而是将自己的生产成果交还给共同体。'}
+   ]},
+  {id:'spod', no:'04b', tag:'生态舱', color:'#70D98A', title:'空间 ②：独立生态舱', en:'THE ECOSYSTEM POD',
+   blocks:[
+     {t:'p', c:'玩家空岛对应主舰部署的独立生态舱。它既是住所，也是小型生产基地。玩家需从有限资源开始，逐步恢复：'},
+     {t:'ul', items:['物质生产','农业循环','能源储备','自动化设施','舱体活动范围']},
+     {t:'p', c:'生态舱分散部署，是因为主舰已无法集中供养所有幸存者。每座舱体独立发展，也能避免一次事故摧毁整个文明。'}
+   ]},
+  {id:'srift', no:'04c', tag:'裂隙', color:'#9A6BFF', title:'空间 ③：空间裂隙', en:'THE RIFT',
+   blocks:[
+     {t:'p', c:'副本对应空间裂隙。裂隙通往与主航路失联的残存星域，那里可能存在：'},
+     {t:'ul', items:[
+       '仍在求生的异星文明；',
+       '已经废弃的殖民地；',
+       '失控的机械设施；',
+       '危险生物与污染区域；',
+       '修复主舰所需的能源、坐标和科技。'
+     ]},
+     {t:'emphasis', c:'裂隙不是单纯的刷怪入口，而是文明获取稀有资源和了解外部世界的唯一途径。'}
+   ]},
+  {id:'player', no:'05', tag:'身份', color:'#62D9FF', title:'玩家身份与行动理由', en:'THE PIONEER',
+   blocks:[
+     {t:'p', c:'玩家的正式身份为<b>开拓者</b>。开拓者没有预设的英雄血统，也不是唯一的救世主。他们是 STELLARIS 在资源危机中陆续唤醒的建设者、探索者与战斗人员。'},
+     {t:'p', c:'玩家当前只有三个明确目标：'},
+     {t:'list3', items:[
+       {ic:'🛠', en:'POD', t:'让自己的生态舱稳定运转', s:'对应空岛玩法'},
+       {ic:'📦', en:'ARK', t:'为 STELLARIS 补充资源并修复关键系统', s:'对应主城玩法'},
+       {ic:'🌀', en:'RIFT', t:'通过裂隙寻找新的宜居星域', s:'对应副本玩法'}
+     ]}
+   ]},
+  {id:'rules', no:'06', tag:'规则', color:'#D8B45B', title:'世界运行的四条规则', en:'FOUR LAWS OF THE WORLD',
+   blocks:[
+     {t:'p', c:'后续所有剧情和玩法都应遵守以下四条规则：'}
+   ]},
+  {id:'rule1', no:'06a', tag:'规则一', color:'#70D98A', title:'基础资源来自生态舱', en:'LAW 01 · THE POD PRODUCES',
+   blocks:[
+     {t:'p', c:'生态舱可以利用物质重构技术，从空间残留物中生成基础材料，但无法直接生成高级能源和完整科技。因此，空岛负责长期生产与建设，但不能脱离副本独立完成全部成长。'}
+   ]},
+  {id:'rule2', no:'06b', tag:'规则二', color:'#9A6BFF', title:'稀有资源来自裂隙', en:'LAW 02 · THE RIFT YIELDS',
+   blocks:[
+     {t:'p', c:'裂隙星域中存在星核碎片、异星种子、坐标数据和机械部件。它们用于升级生态舱、修复主舰并解锁新区域。因此，副本探索必须反过来促进空岛发展。'}
+   ]},
+  {id:'rule3', no:'06c', tag:'规则三', color:'#62D9FF', title:'裂隙需要主舰维持', en:'LAW 03 · THE ARK SUSTAINS',
+   blocks:[
+     {t:'p', c:'开启和稳定裂隙会消耗主舰能源。只有玩家持续提交物资，STELLARIS 才能开放更远、更危险的星域。因此，全服进度与个人成长始终相连。'}
+   ]},
+  {id:'rule4', no:'06d', tag:'规则四', color:'#FFAA45', title:'星海仍在继续崩坏', en:'LAW 04 · THE SEA STILL BREAKS',
+   blocks:[
+     {t:'p', c:'当前空域并不安全。主舰不能永远停留，必须完成修复并周期性跃迁。因此，赛季更替、新副本开放和主城变化都可以由"主舰进入新星域"解释。'}
+   ]},
+  {id:'loop', no:'07', tag:'循环', color:'#62D9FF', title:'主线玩法循环', en:'THE CORE LOOP',
+   blocks:[
+     {t:'flow', items:['部署生态舱','生产基础物资并建设家园','完成主舰委托、贡献文明资源','修复主舰并解锁空间裂隙','探索异星世界、获得稀有材料','升级生态舱与物质重构技术','前往更远的星域']},
+     {t:'quote', c:'生态舱负责生产与建设，STELLARIS 负责任务与共同进度，空间裂隙负责探索、战斗和稀有资源。'}
+   ]},
+  {id:'crisis', no:'08', tag:'危机', color:'#FF4B55', title:'当前危机与长期悬念', en:'THE CRISIS & THE MYSTERY',
+   blocks:[
+     {t:'h', c:'当前危机'},
+     {t:'p', c:'STELLARIS 的核心能源正在衰减。如果无法恢复跃迁能力，主舰最终会与所有生态舱一起被空间风暴吞没。这是玩家现阶段最直接的行动理由，无需再叠加更多宇宙级危机。'},
+     {t:'h', c:'长期悬念'},
+     {t:'p', c:'主舰保存的"断航日"档案并不完整，部分记录被最高权限主动封锁。现有线索暗示：'},
+     {t:'quote', c:'星海航路的崩塌可能并非意外，而是某项隔离程序启动后的结果。'},
+     {t:'p', c:'该悬念只作为后续赛季的扩展入口。首个版本不急于揭示真相，也不需要立即设计最终反派。'}
+   ]},
+  {id:'story', no:'09', tag:'故事', color:'#D8B45B', title:'简版背景故事', en:'THE SHORT STORY',
+   blocks:[
+     {t:'h', c:'标准版'},
+     {t:'p', c:'曾经，遍布星海的折跃航路连接着无数星系。直到"断航日"降临，航路发生连锁崩坏，殖民地失去联系，文明被分割在破碎的星域之中。'},
+     {t:'p', c:'方舟主舰"STELLARIS"带着最后一批幸存者逃离故乡，却在航行中严重受损。为了节省舰内资源，主舰将独立生态舱部署到周围空域，并开始唤醒沉睡的开拓者。'},
+     {t:'emphasis', c:'你就是其中一员。'},
+     {t:'p', c:'你需要从一座资源匮乏的生态舱开始生产与建设，将物资送回主舰，再穿过危险的空间裂隙，寻找失落科技、异星资源与仍然存活的文明。'},
+     {t:'p', c:'STELLARIS 的能源正在枯竭。在它彻底停航之前，所有开拓者必须共同修复主舰，并找到下一片可以让文明延续的星空。'},
+     {t:'h', c:'进服简介 · 短版'},
+     {t:'quote', c:'断航日后，星海被撕裂，最后的幸存者乘坐"STELLARIS"漂泊于虚空。经营你的生态舱，探索失联星域，将资源与科技带回主舰。在核心熄灭之前，为文明找到下一片家园。'},
+     {t:'slogan', c:'从一座生态舱开始，重建一片星海。'}
+   ]},
+  {id:'terms', no:'10', tag:'术语', color:'#62D9FF', title:'统一术语对照表', en:'UNIFIED TERMINOLOGY',
+   blocks:[
+     {t:'p', c:'为避免世界观只改变名称却不影响玩法，所有系统使用统一且不冲突的科幻术语。玩家界面优先使用短称，较长术语仅用于档案或剧情文本。'},
+     {t:'table', head:['玩法称呼','世界观称呼','简要解释'], rows:[
+       ['主城','STELLARIS / 方舟主舰','幸存者文明中心'],
+       ['空岛','独立生态舱','玩家个人生存与建设空间'],
+       ['玩家','开拓者','被主舰唤醒的建设和探索人员'],
+       ['岛主','舱长','生态舱负责人'],
+       ['空岛成员','舱员','同一生态舱的协作成员'],
+       ['虚空','断层空域','航路崩坏后的不稳定空间'],
+       ['刷石机','物质重构器','生成基础物质的生态舱设备'],
+       ['岛屿等级','舱体稳定度','生态舱综合发展水平'],
+       ['岛屿边界','生态隔离场','生态舱的安全活动范围'],
+       ['副本','裂隙星域','通过空间裂隙抵达的区域'],
+       ['副本队伍','远征小队','执行裂隙探索任务的队伍'],
+       ['日常任务','主舰委托','维持主舰运转的常规任务'],
+       ['赛季重置','主舰跃迁','STELLARIS 离开旧空域、进入新星域'],
+       ['全服进度','文明存续进度','所有玩家共同推动的主舰目标']
+     ]}
+   ]},
+  {id:'tone', no:'11', tag:'基调', color:'#D8B45B', title:'视觉与叙事基调', en:'TONE & DIRECTION',
+   blocks:[
+     {t:'h', c:'应当呈现'},
+     {t:'ul', items:[
+       '冰冷、老化但仍在运转的主舰；',
+       '漂浮在黑暗中的微小生态与灯光；',
+       '玩家贡献资源后，主舰逐步恢复照明和功能；',
+       '裂隙另一端拥有明显不同的环境与文明痕迹；',
+       '希望来自玩家建设产生的实际变化。'
+     ]},
+     {t:'h', c:'应当避免'},
+     {t:'ul', items:[
+       '一开始就堆叠多个古神、帝国和宇宙战争；',
+       '用长篇 NPC 对话一次解释全部历史；',
+       '把所有原住民都设计成敌人；',
+       '世界观只改变名称，却不影响任务和资源流向；',
+       '每个系统使用不同且互相冲突的科幻术语。'
+     ]}
+   ]},
+  {id:'scope', no:'12', tag:'落地', color:'#62D9FF', title:'首版世界观的最小落地范围', en:'MINIMUM VIABLE LORE',
+   blocks:[
+     {t:'h', c:'首个可玩版本只需要让玩家理解五件事'},
+     {t:'ul', items:[
+       '主城是受损的方舟主舰"STELLARIS"；',
+       '玩家空岛是主舰部署的独立生态舱；',
+       '玩家生产基础物资以维持自己和主舰；',
+       '副本是通往失联星域的空间裂隙；',
+       '带回异星资源可以升级生态舱并推动主舰跃迁。'
+     ]},
+     {t:'h', c:'首版暂时不需要制作'},
+     {t:'ul', items:[
+       '完整银河历史；','多阵营政治系统；','复杂宗教与语言；','明确的最终反派；','大量无法在玩法中体现的设定。'
+     ]},
+     {t:'p', c:'只要上述五点能通过新手流程被玩家亲自体验，主世界观就已经成立。'}
+   ]},
+  {id:'next', no:'13', tag:'衔接', color:'#FFAA45', title:'后续文档衔接建议', en:'CONTINUATION',
+   blocks:[
+     {t:'p', c:'后续方案均以本稿为基准，按以下顺序继续优化：'},
+     {t:'ul', items:[
+       '项目计划书：把插件系统与"生态舱—主舰—裂隙"循环逐项对应；',
+       '视觉效果方案：围绕 STELLARIS、生态舱、裂隙三类空间建立视觉语言；',
+       '新手流程：设计"苏醒—部署生态舱—提交资源—首次远征"的完整体验；',
+       '首批副本：每个裂隙只承担一种资源功能和一个简单故事；',
+       '赛季框架：用主舰跃迁解释地图、资源与剧情的阶段变化。'
+     ]},
+     {t:'p', c:'本稿中的世界规则、核心名词与玩家身份，应作为后续文案的一致性基准。'}
+   ]}
+];
+
+/* =========================================================
+   视图渲染
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+/* --- Wiki 侧栏索引（扁平化，含父章节跳转） --- */
+function wikiSidebarHtml(){
+  const groups=[
+    {g:'总览',children:['overview','oneline','lore']},
+    {g:'三大空间',children:['three','spark','spod','srift']},
+    {g:'身份与规则',children:['player','rules','rule1','rule2','rule3','rule4']},
+    {g:'循环与悬念',children:['loop','crisis']},
+    {g:'叙事与术语',children:['story','terms','tone','scope','next']}
+  ];
+  let h='';
+  groups.forEach(grp=>{
+    h+=`<div class="w-grp">${grp.g}</div>`;
+    grp.children.forEach(id=>{
+      const ch=WIKI.find(x=>x.id===id);
+      if(!ch)return;
+      const indent = /^\d+[abc]$/.test(ch.no)?' style="padding-left:22px"':'';
+      h+=`<button class="w-nav${id==='overview'?' on':''}" data-ch="${id}"${indent}><span class="wn-no">${ch.no}</span>${ch.title}</button>`;
+    });
+  });
+  return h;
+}
+
+function wikiSectionPage(){
+  let h='';
+  const oneline=WIKI.find(x=>x.id==='oneline');
+  h+=`<div class="w-card w-hero">
+    <div class="w-hero-img"></div>
+    <div class="w-hero-body">
+      <div class="w-hero-tag">DEEP FIELD ARCHIVE // 世界观基准 v2</div>
+      <h1>星郡 · 世界观档案库</h1>
+      <div class="w-hero-en">STELLARIS — THE WORLDVIEW REFERENCE</div>
+      <p class="w-hero-quote">${esc(oneline.blocks[0].c)}</p>
+      <div class="w-hero-meta">
+        <span>基准文档 · 世界观 v2.0</span><span>章节 13</span><span>归档日期 2026.09</span>
+      </div>
+    </div>
+  </div>`;
+  // 4 张速览大卡
+  const quick=[
+    {ic:'☷',color:'#62D9FF',t:'三大空间',s:'生态舱 · 主舰 · 裂隙',d:'生产、归属、远征的三层世界骨架',ch:'three'},
+    {ic:'⚖',color:'#D8B45B',t:'四条世界规则',s:'Lore Consistency',d:'所有剧情与玩法必须遵守的底层约束',ch:'rules'},
+    {ic:'◎',color:'#9A6BFF',t:'玩家身份',s:'The Pioneer',d:'你不是英雄，而是让文明继续运转的开拓者',ch:'player'},
+    {ic:'✧',color:'#FF4B55',t:'核心危机',s:'The Crisis',d:'STELLARIS 能源衰减，文明存续倒计时',ch:'crisis'}
+  ];
+  h+=`<div class="w-quick">`+quick.map(q=>`<button class="wq-card" data-ch="${q.ch}"><div class="wq-ic" style="color:${q.color};border-color:${q.color}44">${IC(q.ic)}</div><div class="wq-t">${q.t}</div><div class="wq-s">${q.s}</div><div class="wq-d">${q.d}</div></button>`).join('')+`</div>`;
+  // 移动端章节导航条（桌面隐藏）
+  h+=`<div class="w-mobnav" id="wMobNav">`+WIKI.filter(x=>!x.hideNav).map(ch=>`<button class="wm-chip" data-ch="${ch.id}"><span style="color:${ch.color}">${ch.no}</span>${ch.title}</button>`).join('')+`</div>`;
+  // 正文
+  h+=`<div class="w-article">`;
+  WIKI.filter(x=>!x.hideNav).forEach(ch=>{
+    h+=`<section class="w-sec" id="ch-${ch.id}" data-chid="${ch.id}">
+      <div class="w-sec-hd">
+        <span class="w-no" style="color:${ch.color}">${ch.no}</span>
+        <div class="w-titles">
+          <div class="w-en" style="color:${ch.color}">${ch.en}</div>
+          <h2>${ch.title}</h2>
+        </div>
+      </div>
+      <div class="w-blocks">${renderBlocks(ch.blocks,ch.color)}</div>
+    </section>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+
+function renderBlocks(blocks,accent){
+  return blocks.map(b=>{
+    switch(b.t){
+      case 'p': return `<p class="w-b-p">${b.c}</p>`;
+      case 'h': return `<h3 class="w-b-h">${b.c}</h3>`;
+      case 'sub': return `<p class="w-b-p lead">${b.c}</p>`;
+      case 'quote': return `<blockquote class="w-b-q"><span class="qq"></span>${b.c}</blockquote>`;
+      case 'emphasis': return `<div class="w-b-em"><span class="em-bar" style="background:${accent}"></span>${b.c}</div>`;
+      case 'slogan': return `<div class="w-b-slogan">${b.c}</div>`;
+      case 'ul': return `<ul class="w-b-ul">${b.items.map(i=>`<li><span class="dot" style="background:${accent}"></span>${i}</li>`).join('')}</ul>`;
+      case 'cards': return `<div class="w-b-cards">${b.items.map((c,i)=>`<div class="wb-card"><div class="wb-ic" style="color:${accent}">${IC(c.ic)}</div><div class="wb-k">${c.k}</div><div class="wb-v">${c.v}</div></div>`).join('')}</div>`;
+      case 'list3': return `<div class="w-b-list3">${b.items.map((c,i)=>`<div class="l3"><div class="l3-n">0${i+1}</div><div class="l3-ic" style="color:${accent}">${IC(c.ic)}</div><div class="l3-en">${c.en}</div><div class="l3-t">${c.t}</div><div class="l3-s">${c.s}</div></div>`).join('')}</div>`;
+      case 'flow': return `<div class="w-b-flow">${b.items.map((s,i)=>`<div class="wf-row"><div class="wf-no">${String(i+1).padStart(2,'0')}</div><div class="wf-t">${s}</div>${i<b.items.length-1?'<div class="wf-arrow">↓</div>':''}</div>`).join('')}</div>`;
+      case 'table': return `<div class="w-b-table"><table><thead><tr>${b.head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+      default: return '';
+    }
+  }).join('');
+}
+
+function esc(s){return String(s==null?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function mountWiki(){
+  const mount=$('#wiki-mount');
+  mount.innerHTML=`<div class="wiki-wrap">
+    <aside class="w-side" id="wikiSide">
+      <div class="w-side-hd">
+        <div class="w-side-logo">STELLAR<b>IS</b></div>
+        <div class="w-side-sub">WORLDVIEW INDEX</div>
+      </div>
+      <div class="w-nav" id="wikiNav">${wikiSidebarHtml()}</div>
+      <div class="w-side-ft">
+        <button class="btn btn-ghost btn-sm" data-view="home" style="width:100%;justify-content:center;">← 返回首页</button>
+      </div>
+    </aside>
+    <div class="w-main" id="wMain">
+      <div class="w-progress"><div id="wProgBar"></div></div>
+      <div class="w-content" id="wikiContent">${wikiSectionPage()}</div>
+    </div>
+  </div>`;
+  // 滚动监听高亮（w-main 是主滚动容器）
+  const scroller=$('#wMain');
+  const nav=$('#wikiNav');
+  if(scroller){
+    scroller.addEventListener('scroll',()=>{
+      const bar=$('#wProgBar');
+      const p=scroller.scrollTop/(scroller.scrollHeight-scroller.clientHeight);
+      if(bar)bar.style.width=(p*100)+'%';
+      // 高亮当前章节
+      const secs=$$('.w-sec');
+      let cur='overview';
+      secs.forEach(s=>{ if(s.offsetTop <= scroller.scrollTop + 160) cur=s.dataset.chid; });
+      $$('.w-nav[data-ch]').forEach(b=>b.classList.toggle('on',b.dataset.ch===cur));
+      $$('.wm-chip[data-ch]').forEach(b=>b.classList.toggle('on',b.dataset.ch===cur));
+      const active=nav.querySelector('.w-nav[data-ch="'+cur+'"]');
+      if(active){const r=active.offsetTop-nav.scrollTop;if(r<0||r>nav.clientHeight-60)active.scrollIntoView({block:'center',behavior:'smooth'});}
+    });
+  }
+  bindWikiNav();
+  bindNav(); // 重新绑定动态生成内容里的 data-view
+}
+
+function bindWikiNav(){
+  const scroller=$('#wMain');
+  const go=ch=>{
+    if(!scroller)return;
+    const t=$('#ch-'+ch);
+    if(t)scroller.scrollTo({top:t.offsetTop-30,behavior:'smooth'});
+  };
+  $$('#wikiNav .w-nav[data-ch]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.ch)));
+  $$('#wikiContent .wq-card[data-ch]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.ch)));
+  $$('#wikiContent [data-ch]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.ch)));
+}
+
+/* ---- 设定图鉴数据 ---- */
+const CODEX_CATS=[
+  {id:'space',name:'空间与设定',en:'SPATIAL',color:'#62D9FF',ic:'✧'},
+  {id:'res',name:'资源与材料',en:'RESOURCE',color:'#70D98A',ic:'◆'},
+  {id:'faction',name:'角色与势力',en:'FACTION',color:'#D8B45B',ic:'⬢'},
+  {id:'system',name:'系统情报',en:'SYSTEM',color:'#9A6BFF',ic:'◎'}
+];
+const CODEX=[
+  // 空间与设定
+  {cat:'space',rar:'CORE',t:'STELLARIS 主舰',en:'THE ARK',c:'幸存者文明中心，三大空间中代表"归属与共同进度"。主舰进度即文明存续进度。',tag:'方舟',img:IMG.ship},
+  {cat:'space',rar:'CORE',t:'独立生态舱',en:'ECOSYSTEM POD',c:'玩家空岛，代表"生产与建设"。物质生产、农业循环、能源储备的生存基地。',tag:'家园',img:IMG.habitat},
+  {cat:'space',rar:'CORE',t:'空间裂隙',en:'THE RIFT',c:'通往失联星域的通道，代表"探索与稀有资源"，是文明了解外部世界的唯一途径。',tag:'副本',img:IMG.wasteland},
+  {cat:'space',rar:'LORE',t:'断层空域',en:'VOID SECTOR',c:'航路崩坏后的不稳定虚空，连接三大空间的中间地带。',tag:'虚空'},
+  {cat:'space',rar:'LORE',t:'生态隔离场',en:'ISOLATION FIELD',c:'生态舱的安全活动范围，即岛屿边界。',tag:'边界'},
+  // 资源与材料
+  {cat:'res',rar:'RARE',t:'星核碎片',en:'STELLAR CORE SHARD',c:'裂隙中的珍贵能源残留，用于修复主舰核心、升级生态舱。',tag:'裂隙产',color:'#9A6BFF'},
+  {cat:'res',rar:'RARE',t:'异星种子',en:'ALIEN SEED',c:'来自失联星域的生命样本，可解锁农业循环的异星作物。',tag:'裂隙产',color:'#70D98A'},
+  {cat:'res',rar:'RARE',t:'坐标数据',en:'COORDINATE DATA',c:'遗落的星图坐标，用于修复跃迁引擎、定位新家园。',tag:'裂隙产',color:'#62D9FF'},
+  {cat:'res',rar:'CORE',t:'物质重构器',en:'MATTER RECONSTRUCTOR',c:'从空间残留物生成基础材料的核心设备（刷石机），分 Mk.I/II/III。',tag:'基础产',color:'#70D98A'},
+  {cat:'res',rar:'CORE',t:'机械部件',en:'MECHANICAL PARTS',c:'驱动自动化设施升级的裂隙产物，回填生态舱产线。',tag:'裂隙产',color:'#D8B45B'},
+  // 角色与势力
+  {cat:'faction',rar:'CORE',t:'开拓者',en:'THE PIONEER',c:'被主舰唤醒的建设者、探索者与战斗人员。你不是救世主，而是文明运转的齿轮。',tag:'玩家'},
+  {cat:'faction',rar:'LORE',t:'舱长 / 舱员',en:'POD CREW',c:'生态舱负责人与协作成员。舱长负责统筹舱体发展，舱员共同生产建设。',tag:'关系'},
+  {cat:'faction',rar:'LORE',t:'远征小队',en:'EXPEDITION TEAM',c:'执行裂隙探索任务的副本队伍，深入失联星域带回资源。',tag:'副本队'},
+  {cat:'faction',rar:'SUS',t:'失落异星文明',en:'LOST CIVILIZATION',c:'裂隙另一端可能仍在求生的文明，也是长期悬念的关键（断航日真相存疑）。',tag:'未知',color:'#FF4B55'},
+  {cat:'faction',rar:'SUS',t:'残存机械设施',en:'RAMPANT MACHINES',c:'失控的自动化机械，曾是文明的遗产，如今成为裂隙中的威胁或财富。',tag:'遗迹',color:'#FFAA45'},
+  // 系统情报
+  {cat:'system',rar:'CORE',t:'主舰委托',en:'ARK COMMISSION',c:'维持主舰运转的常规任务（日常任务），衔接个人生产与全服进度。',tag:'系统',color:'#62D9FF'},
+  {cat:'system',rar:'CORE',t:'文明存续进度',en:'CIVILIZATION PROGRESS',c:'所有玩家共同推动的主舰目标（全服进度），随物资贡献逐步恢复主舰。',tag:'系统',color:'#62D9FF'},
+  {cat:'system',rar:'LORE',t:'主舰跃迁',en:'THE LEAP',c:'STELLARIS 离开旧空域、进入新星域的周期事件（赛季重置）。',tag:'周期',color:'#FFAA45'},
+  {cat:'system',rar:'LORE',t:'舱体稳定度',en:'POD STABILITY',c:'生态舱综合发展水平（岛屿等级），决定可解锁的功能与范围。',tag:'等级',color:'#70D98A'}
+];
+
+function codexFilters(){
+  let h=`<div class="cx-tabs">`;
+  h+=`<button class="cx-tab on" data-cat="all">全部<span class="cn">ALL</span></button>`;
+  CODEX_CATS.forEach(c=>{
+    h+=`<button class="cx-tab" data-cat="${c.id}"><span style="color:${c.color}">${IC(c.ic)}</span> ${c.name}<span class="cn">${c.en}</span></button>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+function codexGrid(cat){
+  const data = cat==='all'?CODEX:CODEX.filter(x=>x.cat===cat);
+  if(!data.length)return `<div class="cx-empty">— 该分类暂无记录 —</div>`;
+  return `<div class="cx-grid">`+data.map((c,i)=>{
+    const accent=c.color||({space:'#62D9FF',res:'#70D98A',faction:'#D8B45B',system:'#9A6BFF'})[c.cat];
+    const isWide=i%4===0;
+    const bg=c.img?`<div class="cx-bg" style="background-image:url('${c.img}')"></div>`:'';
+    const noIcon=c.img?'':'<div class="cx-picph" style="color:'+accent+'">'+(c.ic||(c.t[0]))+'</div>';
+    return `<div class="cx-card${isWide?' wide':''}" style="--ac:${accent}" data-tt='${c.t}'>
+      ${bg||noIcon}
+      <div class="cx-veil"></div>
+      <div class="cx-tagrow"><span class="cx-rar" style="color:${accent};border-color:${accent}55">${c.rar}</span><span class="cx-cat">${({space:'SPACE',res:'RESOURCE',faction:'FACTION',system:'SYSTEM'})[c.cat]}</span></div>
+      <div class="cx-info"><div class="cx-en">${c.en}</div><h3>${c.t}</h3><p>${c.c}</p></div>
+      <div class="cx-ft"><span class="cx-tag">${c.tag}</span></div>
+    </div>`;
+  }).join('')+`</div>`;
+}
+function mountCodex(){
+  const mount=$('#codex-mount');
+  mount.innerHTML=`<div class="cx-hero"><div class="section-head" style="padding:130px 40px 40px;max-width:1320px;">
+    <div class="tag">STELLARIS CODEX / 设定图鉴</div>
+    <h1>档案库 · <em style="color:var(--c-rift)">图鉴</em></h1>
+    <div class="sub">星郡世界的空间、资源、角色与系统情报卡片档案。点击卡片可查看设定细节（建设中）。</div>
+  </div></div>
+  <div class="cx-wrap">
+    <div class="cx-toolbar">
+      <div class="cx-legend">${codexFilters()}</div>
+      <div class="cx-count" id="cxCount"></div>
+    </div>
+    <div id="cxGrid" class="cx-body">${codexGrid('all')}</div>
+  </div>`;
+  bindCodex();
+  bindNav(); // 重新绑定动态内容
+}
+function bindCodex(){
+  $$('.cx-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      $$('.cx-tab').forEach(x=>x.classList.remove('on'));
+      tab.classList.add('on');
+      $('#cxGrid').innerHTML=codexGrid(tab.dataset.cat);
+      $('#cxCount').textContent = (tab.dataset.cat==='all'?CODEX:CODEX.filter(x=>x.cat===tab.dataset.cat)).length+' 条档案';
+      bindCodexCards();
+    });
+  });
+  $('#cxCount').textContent=CODEX.length+' 条档案';
+  bindCodexCards();
+}
+function bindCodexCards(){
+  $$('.cx-card').forEach(c=>{
+    c.addEventListener('click',()=>{
+      const wasSel=c.classList.contains('sel');
+      $$('.cx-card').forEach(x=>x.classList.remove('sel'));
+      if(!wasSel)c.classList.add('sel');
+    });
+  });
+}
+
+/* =========================================================
+   粒子特效系统（canvas 深空粒子 + 流星）
+   ========================================================= */
+(function initFX(){
+  const canvas=$('#fx-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,dpr=Math.min(window.devicePixelRatio||1,2);
+  let particles=[], meteors=[], off=false;
+
+  function resize(){
+    W=canvas.width=innerWidth*dpr;
+    H=canvas.height=innerHeight*dpr;
+    canvas.style.width=innerWidth+'px';
+    canvas.style.height=innerHeight+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    buildStars();
+  }
+  function buildStars(){
+    const n=Math.floor((innerWidth*innerHeight)/2600);
+    particles=[];
+    for(let i=0;i<n;i++){
+      particles.push({
+        x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+        r:Math.random()*1.4+0.2,
+        a:Math.random()*0.7+0.15,
+        tw:Math.random()*0.02+0.004,
+        ph:Math.random()*Math.PI*2,
+        sp:Math.random()*0.12+0.02,
+        hue:[[220,231,232],[220,231,232],[220,231,232],[160,215,255],[154,107,255]][Math.floor(Math.random()*5)]
+      });
+    }
+  }
+  let mt=0;
+  function spawnMeteor(){
+    if(Math.random()<0.004||meteors.length<3){
+      meteors.push({
+        x:Math.random()*innerWidth*0.8+innerWidth*0.1,
+        y:-20-Math.random()*120,
+        vx:Math.random()*2.4+1.2,vy:Math.random()*1.2+0.7,
+        life:1,len:70+Math.random()*60
+      });
+    }
+  }
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    t+=1;
+    // 粒子
+    particles.forEach(p=>{
+      const alpha=p.a*(0.5+0.5*Math.sin(t*p.tw+p.ph));
+      p.y-=p.sp; if(p.y<-2)p.y=innerHeight+2; p.x+=Math.sin(t*0.001+p.ph)*0.05;
+      ctx.beginPath();
+      ctx.fillStyle=`rgba(${p.hue},${alpha*0.9})`;
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    });
+    // 流星
+    spawnMeteor();
+    meteors.forEach(m=>{
+      m.x+=m.vx;m.y+=m.vy;m.life-=0.008;
+      const g=ctx.createLinearGradient(m.x,m.y,m.x-m.vx*m.len,m.y-m.vy*m.len);
+      g.addColorStop(0,`rgba(160,220,255,${0.5*m.life})`);
+      g.addColorStop(1,'rgba(160,220,255,0)');
+      ctx.strokeStyle=g;ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(m.x,m.y);ctx.lineTo(m.x-m.vx*m.len,m.y-m.vy*m.len);ctx.stroke();
+    });
+    meteors=meteors.filter(m=>m.life>0);
+    if(!off)requestAnimationFrame(draw);
+  }
+  function start(){off=false;resize();requestAnimationFrame(draw);}
+  function stop(){off=true;ctx.clearRect(0,0,innerWidth,innerHeight);}
+
+  resize();
+  draw();
+  addEventListener('resize',resize);
+
+  window.__fx={toggle(on){
+    if(on){document.body.classList.remove('no-fx');start();canvas.classList.remove('is-off');}
+    else{stop();document.body.classList.add('no-fx');canvas.classList.add('is-off');}
+  }};
+})();
+
+/* =========================================================
+   视图切换系统
+   ========================================================= */
+const VIEWS=['home','wiki','codex'];
+function showView(name,hash){
+  VIEWS.forEach(v=>{
+    $('#view-'+v).classList.toggle('active',v===name);
+  });
+  $$('.nav-btn[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  document.body.dataset.view=name;
+  window.scrollTo(0,0);
+  if(name==='home'){ /* 主页顶栏透明态 */ }
+  // 移动端侧栏回到顶部
+  const wc=$('#wikiContent');if(wc)wc.scrollTop=0;
+  if(name==='wiki'&&!$('#wikiContent'))mountWiki();
+  if(name==='codex'&&!$('#cxGrid'))mountCodex();
+  if(name==='wiki'&&hash){
+    setTimeout(()=>{const t=$('#ch-'+hash);if(t&&$('#wMain'))$('#wMain').scrollTo({top:t.offsetTop-30,behavior:'smooth'});},120);
+  }
+}
+function bindNav(){
+  $$('[data-view]').forEach(el=>{
+    el.addEventListener('click',e=>{
+      e.preventDefault();
+      const v=el.dataset.view;
+      if(!v)return;
+      showView(v, el.dataset.ch||undefined);
+    });
+  });
+  $$('[data-goto]').forEach(b=>b.addEventListener('click',e=>{
+    e.preventDefault();
+    const v=b.dataset.goto;
+    if(v)showView(v, b.dataset.ch||undefined);
+  }));
+}
+/* hero 滚动 */
+document.querySelectorAll('[data-scroll-to]').forEach(el=>{
+  el.addEventListener('click',()=>{const t=$('#'+el.dataset.scrollTo);if(t)t.scrollIntoView({behavior:'smooth'});});
+});
+/* 顶栏滚动态 */
+addEventListener('scroll',()=>{$('#topbar').classList.toggle('scrolled',scrollY>40);});
+
+/* =========================================================
+   音乐播放器（太空电梯 · THE SPACE ELEVATOR）
+   ========================================================= */
+const TRACKS=[
+  {t:'流浪地球 · 太空电梯',s:'THE WANDERING EARTH · ASCENSION',src:'audio/04_space_elevator_earth.mp3'},
+  {t:'环太平洋 · 太空电梯',s:'PACIFIC RIM · RISING',src:'audio/05_pacific_rim.mp3'}
+];
+let curTrack=0;
+const plAudio=$('#plAudio');
+const plFill=$('#plFill'),plTrack=$('#plTrack');
+
+function fmt(s){s=Math.max(0,Math.floor(s||0));return (s/60|0)+':'+String(s%60).padStart(2,'0');}
+function setCur(keep){
+  const tk=TRACKS[curTrack];
+  $('#plTitle').textContent=tk.t;
+  $('#plSub').textContent=tk.s;
+  const want=(new URL(tk.src,location.href)).href;
+  if(plAudio.src!==want){ plAudio.src=tk.src; plAudio.load(); }
+  $('#plDur').textContent=plAudio.duration?fmt(plAudio.duration):'--:--';
+  if(!keep)$('#plCur').textContent='00:00';
+  renderPlList();
+}
+function renderPlList(){
+  $('#plList').innerHTML=TRACKS.map((tk,i)=>
+    `<div class="pl-item${i===curTrack?' on':''}" data-i="${i}"><div class="n">${String(i+1).padStart(2,'0')}</div><div class="t">${tk.t}</div><div class="s">${tk.s}</div></div>`
+  ).join('');
+  $$('#plList .pl-item').forEach(el=>el.addEventListener('click',()=>{curTrack=+el.dataset.i;setCur(true);tryPlay();}));
+}
+function tryPlay(){
+  const p=plAudio.play();
+  if(p)p.catch(()=>{ $('#plPlay').textContent='▶'; });
+}
+function syncPlayIcon(){
+  $('#plPlay').textContent=plAudio.paused?'▶':'⏸';
+  $('#plArt').classList.toggle('rot',!plAudio.paused);
+}
+function togglePlay(){
+  if(plAudio.paused){ if(!plAudio.src){plAudio.src=TRACKS[curTrack].src;} tryPlay(); }
+  else plAudio.pause();
+  syncPlayIcon();
+}
+$('#playerToggle').addEventListener('click',()=>{$('#player').classList.toggle('open');});
+$('#plClose').addEventListener('click',()=>{$('#player').classList.remove('open');});
+$('#plPlay').addEventListener('click',togglePlay);
+$('#plPrev').addEventListener('click',()=>{curTrack=(curTrack-1+TRACKS.length)%TRACKS.length;setCur(true);tryPlay();syncPlayIcon();});
+$('#plNext').addEventListener('click',()=>{curTrack=(curTrack+1)%TRACKS.length;setCur(true);tryPlay();syncPlayIcon();});
+$('#plVol').addEventListener('input',e=>{plAudio.volume=+e.target.value;});
+$('#footPlayer').addEventListener('click',e=>{e.preventDefault();$('#player').classList.add('open');});
+plAudio.addEventListener('play',syncPlayIcon);
+plAudio.addEventListener('pause',syncPlayIcon);
+plAudio.addEventListener('ended',()=>{$('#plNext').click();});
+plAudio.addEventListener('timeupdate',()=>{
+  const d=plAudio.duration||0, t=plAudio.currentTime||0;
+  $('#plCur').textContent=fmt(t);
+  $('#plDur').textContent=fmt(d);
+  if(plFill)plFill.style.width=(d? (t/d*100):0)+'%';
+});
+plAudio.addEventListener('loadedmetadata',()=>{$('#plDur').textContent=fmt(plAudio.duration);});
+if(plTrack)plTrack.addEventListener('click',e=>{
+  const r=plTrack.getBoundingClientRect(), x=e.clientX-r.left;
+  if(plAudio.duration){plAudio.currentTime=(x/r.width)*plAudio.duration;}
+});
+plAudio.volume=0.7;
+
+/* 特效开关 */
+let fxOn=true;
+function toggleFx(){
+  fxOn=!fxOn;window.__fx.toggle(fxOn);
+  $('#fxToggle').textContent=fxOn?'◈':'○';
+}
+$('#fxToggle').addEventListener('click',toggleFx);
+$('#footFx').addEventListener('click',e=>{e.preventDefault();toggleFx();});
+
+/* =========================================================
+   启动
+   ========================================================= */
+/* 移动端汉堡菜单 */
+function closeMenu(){document.body.classList.remove('nav-open');}
+function toggleMenu(){document.body.classList.toggle('nav-open');}
+const $menuBtn=$('#menuToggle'),$veil=$('#navVeil');
+if($menuBtn)$menuBtn.addEventListener('click',e=>{e.stopPropagation();toggleMenu();});
+if($veil)$veil.addEventListener('click',closeMenu);
+/* 点任一导航按钮/视图入口后自动收起移动端菜单 */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-view],[data-goto]');
+  if(t&&window.innerWidth<=760)closeMenu();
+});
+renderPlList();setCur();bindNav();
+// 若直链带锚点 #wiki 等
+const initHash=location.hash.replace('#','');
+if(initHash==='wiki'||initHash==='codex'){showView(initHash);}
+else if(initHash.startsWith('wiki/')){showView('wiki',initHash.split('/')[1]);}
+window.__fx=toggleFx;
+</script>
+</body>
+</html>
